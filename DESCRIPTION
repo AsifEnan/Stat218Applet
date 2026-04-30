@@ -16,3 +16,5 @@ Imports:
     gt,
     latex2exp,
     patchwork
+URL: https://github.com/AsifEnan/Stat218Applet
+BugReports: https://github.com/AsifEnan/Stat218Applet/issues
