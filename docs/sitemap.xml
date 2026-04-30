@@ -1,0 +1,23 @@
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/reference/ci_1mean.html</loc></url>
+<url><loc>/reference/ci_1prop.html</loc></url>
+<url><loc>/reference/ci_2mean.html</loc></url>
+<url><loc>/reference/ci_2prop.html</loc></url>
+<url><loc>/reference/ci_paired.html</loc></url>
+<url><loc>/reference/explore_2vars.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/plot_steps.html</loc></url>
+<url><loc>/reference/show_symbols.html</loc></url>
+<url><loc>/reference/table_regression.html</loc></url>
+<url><loc>/reference/test_1mean.html</loc></url>
+<url><loc>/reference/test_1prop.html</loc></url>
+<url><loc>/reference/test_2mean.html</loc></url>
+<url><loc>/reference/test_2prop.html</loc></url>
+<url><loc>/reference/test_correlation.html</loc></url>
+<url><loc>/reference/test_paired.html</loc></url>
+<url><loc>/reference/test_regression.html</loc></url>
+</urlset>
+
