@@ -51,13 +51,13 @@ Used in plot axis labels. For example, \code{name = "After - Before"} or
 \item{alternative}{The direction of the alternative hypothesis
 (H\eqn{_a}). Must be one of:
 \describe{
-\item{\code{"two.sided"}}{H\eqn{_a}: \eqn{\mu_d \neq 0} (default) —
+\item{\code{"two.sided"}}{H\eqn{_a}: \eqn{\mu_d \neq 0} (default) --
 use when testing if the mean difference is simply \emph{different
 from zero} in either direction.}
-\item{\code{"greater"}}{H\eqn{_a}: \eqn{\mu_d > 0} —
+\item{\code{"greater"}}{H\eqn{_a}: \eqn{\mu_d > 0} --
 use when testing if the mean difference is \emph{positive} (After
 tends to be larger than Before).}
-\item{\code{"less"}}{H\eqn{_a}: \eqn{\mu_d < 0} —
+\item{\code{"less"}}{H\eqn{_a}: \eqn{\mu_d < 0} --
 use when testing if the mean difference is \emph{negative} (After
 tends to be smaller than Before).}
 }}
@@ -70,7 +70,7 @@ automatically in the background. Appropriate when the number of
 pairs is at least 20, or when the distribution of differences
 is roughly symmetric.}
 \item{\code{"simulation"}}{Uses a Sign-Flipping simulation. For each
-repetition, a coin is flipped for every pair — heads means the
+repetition, a coin is flipped for every pair -- heads means the
 sign of that pair's difference is flipped (swapping which
 measurement came "first"), tails means it stays as is. This
 simulates the null hypothesis that the two measurements are
@@ -99,7 +99,7 @@ Tests whether the true mean difference between paired measurements is zero
 simulation-based sign-flipping approach (when raw data is provided).
 
 Paired data arises when each subject contributes \strong{two related
-measurements} — for example, a before/after reading, a left/right
+measurements} -- for example, a before/after reading, a left/right
 measurement, or two treatments applied to the same subject. Because the
 two measurements within each pair are linked, we work with the
 \strong{differences} rather than treating the two groups independently.
@@ -109,14 +109,14 @@ This function accepts input in \strong{three ways}:
 \item \strong{Summary Statistics:} You already know the mean difference, standard
 deviation of differences, and number of pairs. Pass \code{x_bar_d}, \code{sd_d},
 and \code{n_d} directly. Note that \code{method = "simulation"} is not available
-with summary statistics — simulation requires the individual difference
+with summary statistics -- simulation requires the individual difference
 values.
 \item \strong{Single Differences Column:} You have a dataset with one column
 containing the pre-computed differences (After minus Before, or
 Treatment minus Control, etc.). Use \code{formula = ~ Differences} with
 your data frame.
 \item \strong{Two Columns (Before/After):} You have a dataset with two separate
-columns — one for each measurement. Use \code{formula = After ~ Before}
+columns -- one for each measurement. Use \code{formula = After ~ Before}
 and the function computes the differences automatically as
 After minus Before for each pair.
 }
@@ -146,7 +146,7 @@ differences, we control for subject-to-subject variability.
 \subsection{Simulation Method (Sign-Flipping)}{
 
 Under the null hypothesis, the two measurements for each subject are
-completely interchangeable — it does not matter which one we call
+completely interchangeable -- it does not matter which one we call
 "Before" and which we call "After." To simulate this, we flip a coin
 for each pair. Heads means we swap the two values (flipping the sign
 of the difference); tails means we leave them as is. We then compute
@@ -178,19 +178,23 @@ result <- test_paired(
 )
 print(result)
 plot(result)
+\dontrun{
 plot_steps(result)
+}
 
 # --- Single Differences Column (simulation) ---
-# Using sleep dataset: extra hours of sleep with drug vs without.
-# The 'extra' column is already a difference (drug effect).
+# Compute the difference (wide - narrow) and store it as a new column
+firstbase$diff <- firstbase$wide - firstbase$narrow
 result2 <- test_paired(
-  formula = ~ extra, data = sleep[sleep$group == 1, ],
-  name = "Extra Sleep (hours)",
-  alternative = "two.sided", method = "simulation"
+ formula     = ~ diff,
+ data        = firstbase,
+ alternative = "two.sided",
+ method      = "simulation"
 )
-print(result2)
 plot(result2)
+\dontrun{
 plot_steps(result2)
+}
 
 # --- Two Columns Before/After (theory) ---
 # Using a manually created before/after dataset.
@@ -205,7 +209,9 @@ result3 <- test_paired(
 )
 print(result3)
 plot(result3)
+\dontrun{
 plot_steps(result3)
+}
 
 # --- Two Columns Before/After (simulation, sign-flipping) ---
 result4 <- test_paired(
@@ -215,6 +221,8 @@ result4 <- test_paired(
 )
 print(result4)
 plot(result4)
+\dontrun{
 plot_steps(result4)
+}
 
 }

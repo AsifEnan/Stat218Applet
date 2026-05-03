@@ -17,7 +17,7 @@ ci_1mean(
 )
 }
 \arguments{
-\item{x_bar}{The observed sample mean — the average value from your sample.
+\item{x_bar}{The observed sample mean-the average value from your sample.
 \strong{Only used when NOT providing \code{formula} and \code{data}.}}
 
 \item{n}{A whole number representing the total sample size.
@@ -132,34 +132,44 @@ value from the Z or T distribution. Requires:
 # --- Summary Statistics (2SD method, default) ---
 result <- ci_1mean(x_bar = 72.4, sd_val = 8.1, n = 35)
 print(result)
+\dontrun{
 plot(result)
 plot_steps(result)
+}
 
 # --- Summary Statistics (theory, T-interval) ---
 result2 <- ci_1mean(x_bar = 72.4, sd_val = 8.1, n = 35,
                     sd_type = "sample", conf_level = 0.95,
                     method = "theory")
 print(result2)
+\dontrun{
 plot(result2)
 plot_steps(result2)
+}
 
 # --- Summary Statistics (simulation, 90\% CI) ---
 result3 <- ci_1mean(x_bar = 72.4, sd_val = 8.1, n = 35,
                     conf_level = 0.90, method = "simulation")
 print(result3)
+\dontrun{
 plot(result3)
 plot_steps(result3)
+}
 
 # --- Raw Data (2SD method) ---
 result4 <- ci_1mean(formula = ~ mpg, data = mtcars, method = "2SD")
 print(result4)
+\dontrun{
 plot(result4)
 plot_steps(result4)
+}
 
 # --- Raw Data (theory, T-interval) ---
 result5 <- ci_1mean(formula = ~ mpg, data = mtcars, method = "theory")
 print(result5)
+\dontrun{
 plot(result5)
 plot_steps(result5)
+}
 
 }

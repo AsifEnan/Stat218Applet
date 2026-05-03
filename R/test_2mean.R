@@ -11,7 +11,7 @@
 #'   deviation, and sample size for both groups (common in textbook homework
 #'   problems). Pass `x_bar_1`, `sd_1`, `n_1`, `x_bar_2`, `sd_2`, and `n_2`
 #'   directly. Note that `method = "simulation"` is not available with summary
-#'   statistics — simulation requires access to the individual data values.
+#'   statistics -- simulation requires access to the individual data values.
 #'
 #' - **Raw Data:** You have an actual dataset loaded into R (common in
 #'   activities and projects). Pass `formula` and `data` instead, and the
@@ -63,10 +63,10 @@
 #'   (H\eqn{_a}). Must be one of:
 #'   \describe{
 #'     \item{`"two.sided"`}{H\eqn{_a}: \eqn{\mu_1 - \mu_2 \neq 0} (default)
-#'       — use when testing if the two means are simply *different*.}
-#'     \item{`"greater"`}{H\eqn{_a}: \eqn{\mu_1 - \mu_2 > 0} —
+#'       -- use when testing if the two means are simply *different*.}
+#'     \item{`"greater"`}{H\eqn{_a}: \eqn{\mu_1 - \mu_2 > 0} --
 #'       use when testing if Group 1's mean is *greater than* Group 2's.}
-#'     \item{`"less"`}{H\eqn{_a}: \eqn{\mu_1 - \mu_2 < 0} —
+#'     \item{`"less"`}{H\eqn{_a}: \eqn{\mu_1 - \mu_2 < 0} --
 #'       use when testing if Group 1's mean is *less than* Group 2's.}
 #'   }
 #' @param method The method used to calculate the p-value. Must be one of:
@@ -112,7 +112,7 @@
 #'
 #' ## Simulation Method (Permutation Test)
 #' We simulate the null hypothesis by treating all observed values as
-#' interchangeable between groups — just like the beetle study in the
+#' interchangeable between groups -- just like the beetle study in the
 #' textbook. All values are pooled, shuffled, and re-dealt into two groups
 #' of the original sizes. The difference in group means is recorded for each
 #' shuffle. The SD of that simulated null distribution goes in the denominator
@@ -146,7 +146,9 @@
 #' )
 #' print(result)
 #' plot(result)
+#' \dontrun{
 #' plot_steps(result)
+#'}
 #'
 #' # --- Summary Statistics Path (one-sided, theory Z-test) ---
 #' result2 <- test_2mean(
@@ -158,7 +160,9 @@
 #' )
 #' print(result2)
 #' plot(result2)
+#' \dontrun{
 #' plot_steps(result2)
+#' }
 #'
 #' # --- Raw Data Path (two-sided, simulation) ---
 #' # Using mtcars: does average MPG differ between automatic and manual?
@@ -171,7 +175,9 @@
 #' print(result3)
 #' plot(result3)
 #' plot(result3, plot_type = "boxplot")
+#' \dontrun{
 #' plot_steps(result3)
+#' }
 #'
 #' # --- Raw Data Path (two-sided, theory T-test) ---
 #' result4 <- test_2mean(
@@ -181,7 +187,9 @@
 #' print(result4)
 #' plot(result4)
 #' plot(result4, plot_type = "boxplot")
+#' \dontrun{
 #' plot_steps(result4)
+#' }
 #'
 #' @export
 test_2mean <- function(x_bar_1 = NULL, sd_1 = NULL, n_1 = NULL,
@@ -194,7 +202,7 @@ test_2mean <- function(x_bar_1 = NULL, sd_1 = NULL, n_1 = NULL,
                        sim_reps = 1000) {
 
   # ============================================================
-  # ROUTING STATION — Phase Two dual-input logic
+  # ROUTING STATION -- Phase Two dual-input logic
   # ============================================================
 
   summary_stat_provided <- !is.null(x_bar_1) || !is.null(sd_1) || !is.null(n_1) ||
@@ -205,7 +213,7 @@ test_2mean <- function(x_bar_1 = NULL, sd_1 = NULL, n_1 = NULL,
   if (summary_stat_provided && formula_provided) {
     cli::cli_abort(c(
       "x" = "You provided both a dataset {.emph (formula/data)} and summary statistics.",
-      "i" = "These are two different ways to use {.fn test_2mean} — please choose one:",
+      "i" = "These are two different ways to use {.fn test_2mean} -- please choose one:",
       " " = " ",
       "*" = "If you have {.strong raw data}: use {.arg formula} and {.arg data}, and remove the summary stat arguments.",
       "*" = "If you only have {.strong summary statistics}: use {.arg x_bar_1}, {.arg sd_1}, {.arg n_1}, etc., and remove {.arg formula} and {.arg data}."
@@ -222,7 +230,7 @@ test_2mean <- function(x_bar_1 = NULL, sd_1 = NULL, n_1 = NULL,
     ))
   }
 
-  # Summary stats + simulation — not possible
+  # Summary stats + simulation -- not possible
   if (summary_stat_provided && method == "simulation") {
     cli::cli_abort(c(
       "x" = "Simulation is not available when using summary statistics.",
@@ -234,7 +242,7 @@ test_2mean <- function(x_bar_1 = NULL, sd_1 = NULL, n_1 = NULL,
     ))
   }
 
-  # Raw data store — will hold individual vectors for boxplot and simulation
+  # Raw data store -- will hold individual vectors for boxplot and simulation
   raw_data_1 <- NULL
   raw_data_2 <- NULL
 
@@ -425,7 +433,7 @@ test_2mean <- function(x_bar_1 = NULL, sd_1 = NULL, n_1 = NULL,
       stat_name <- "T"
       dist_type <- "T-Distribution"
 
-      # Satterthwaite approximation — handled in background
+      # Satterthwaite approximation -- handled in background
       num <- (sd_1^2 / n_1 + sd_2^2 / n_2)^2
       den <- ((sd_1^2 / n_1)^2 / (n_1 - 1)) + ((sd_2^2 / n_2)^2 / (n_2 - 1))
       df  <- num / den
@@ -436,7 +444,7 @@ test_2mean <- function(x_bar_1 = NULL, sd_1 = NULL, n_1 = NULL,
     }
 
   } else if (method == "simulation") {
-    # Permutation Test — shuffle all values between the two groups
+    # Permutation Test -- shuffle all values between the two groups
     all_values <- c(raw_data_1, raw_data_2)
 
     sim_data <- replicate(sim_reps, {
@@ -505,7 +513,7 @@ print.stat218_2mean <- function(x, ...) {
 
   if (x$method == "theory" && (x$n_1 < 20 || x$n_2 < 20)) {
     cli::cli_warn(c(
-      "!" = "Validity conditions may not be met — at least one group has fewer than 20 observations.",
+      "!" = "Validity conditions may not be met -- at least one group has fewer than 20 observations.",
       "i" = "Verify that distributions within both groups are roughly symmetric.",
       "i" = "Consider using {.code method = \"simulation\"} if raw data is available."
     ))
@@ -720,7 +728,7 @@ plot.stat218_2mean <- function(x, plot_type = "distribution", ...) {
 }
 
 # ============================================================
-# PLOT_STEPS METHOD — 3-panel patchwork with latex2exp
+# PLOT_STEPS METHOD -- 3-panel patchwork with latex2exp
 # ============================================================
 
 #' @export
@@ -754,7 +762,7 @@ plot_steps.stat218_2mean <- function(x, alpha = 0.05, ...) {
     p_conc <- paste0("<i>Conclusion:</i> Since the p-value is greater than our significance level (&alpha; = ", alpha, "), we lack strong evidence against the null. We <b>Fail to Reject the Null Hypothesis (H<sub>0</sub>)</b>.")
   }
 
-  # Validity warning — at TOP of bottom panel
+  # Validity warning -- at TOP of bottom panel
   warning_text <- ""
   if (x$method == "theory" && (x$n_1 < 20 || x$n_2 < 20)) {
     warning_text <- paste0(
@@ -767,7 +775,7 @@ plot_steps.stat218_2mean <- function(x, alpha = 0.05, ...) {
   # ---- Build method-specific blurb and equations ----
   if (x$method == "simulation") {
     method_blurb <- paste0(
-      "We use a <b>Permutation Test</b> — all values from both groups are pooled, ",
+      "We use a <b>Permutation Test</b> -- all values from both groups are pooled, ",
       "shuffled, and re-dealt into two groups of the original sizes. This simulates ",
       "the null hypothesis that group membership does not affect the outcome.<br>",
       "&bull; SD of Null Distribution = ", round(x$se, 4), "<br><br>",
@@ -873,7 +881,7 @@ plot_steps.stat218_2mean <- function(x, alpha = 0.05, ...) {
     ggplot2::theme_void() +
     ggplot2::theme(plot.margin = ggplot2::margin(t = 10, r = 20, b = 10, l = 40))
 
-  # ---- PANEL 3: Bottom HTML — warning at top ----
+  # ---- PANEL 3: Bottom HTML -- warning at top ----
   bottom_html <- paste0(
     warning_text,
     "<i>Interpretation of Statistic:</i> The observed difference in sample means is ",

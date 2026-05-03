@@ -2,30 +2,156 @@
 % Please edit documentation in R/table_regression.R
 \name{table_regression}
 \alias{table_regression}
-\title{Generate a Formal Regression Table with CI Interpretation}
+\title{Formatted Simple Linear Regression and ANOVA Tables}
 \usage{
-table_regression(
-  x,
-  y,
-  x_name = "Explanatory Variable",
-  y_name = "Response Variable",
-  conf_level = 0.95
-)
+table_regression(formula, data, table_type = "regression", conf_level = 0.95)
 }
 \arguments{
-\item{x}{Numeric vector for the explanatory variable}
+\item{formula}{A two-sided formula of the form \code{response ~ explanatory}
+identifying the response (y) and explanatory (x) variables in your
+dataset. For example, \code{formula = mpg ~ wt} where both columns exist
+in \code{data}.}
 
-\item{y}{Numeric vector for the response variable}
+\item{data}{A data frame containing the variables named in \code{formula}.}
 
-\item{x_name}{Character string for the explanatory variable name}
+\item{table_type}{A character string controlling which table is produced.
+Must be one of:
+\describe{
+\item{\code{"regression"}}{(default) Produces a coefficients table with
+the intercept and slope, standard errors, t-statistics, p-values,
+and a confidence interval for the slope. A plain-English
+interpretation of the slope confidence interval is shown in the
+table footer.}
+\item{\code{"anova"}}{Produces an ANOVA decomposition table showing the
+Model (Regression), Error (Residuals), and Total rows with sums
+of squares, degrees of freedom, mean squares, the F-statistic,
+and p-value. \eqn{R^2} is shown in the table footer.}
+}}
 
-\item{y_name}{Character string for the response variable name}
-
-\item{conf_level}{Desired confidence level for the interval (default 0.95)}
+\item{conf_level}{The confidence level for the slope confidence interval
+shown in the regression table. Must be a number strictly between 0 and
+\enumerate{
+\item Default is \code{0.95} (95\% confidence interval). Only used when
+\code{table_type = "regression"}.
+}}
 }
 \value{
-A gt table object
+A \code{gt} table object. The table can be further customized using
+standard \code{gt} functions, or saved to HTML, PDF, or Word using
+\code{gt::gtsave()}.
 }
 \description{
-Generate a Formal Regression Table with CI Interpretation
+Fits a simple linear regression model and produces a publication-quality
+formatted table using the \code{gt} package. Two table types are available:
+\itemize{
+\item \strong{Regression Table} (\code{table_type = "regression"}, the default): Displays
+the intercept and slope with their standard errors, t-statistics, p-values,
+and a confidence interval for the slope. Includes an automatically
+generated plain-English interpretation of the confidence interval.
+\item \strong{ANOVA Table} (\code{table_type = "anova"}): Displays the analysis of
+variance decomposition of the regression model -- Model (Regression),
+Error (Residuals), and Total rows -- with sums of squares, degrees of
+freedom, mean squares, the F-statistic, and p-value. Includes \eqn{R^2}
+in the footer.
+}
+
+This function accepts input via \code{formula} and \code{data} only -- raw data
+is required to fit the model.
+}
+\details{
+\subsection{Regression Table}{
+
+The regression table displays the fitted model
+\deqn{\hat{y} = b_0 + b_1 x}
+with the following columns:
+\itemize{
+\item \strong{Term}: Intercept (\eqn{b_0}) and the explanatory variable name (\eqn{b_1})
+\item \strong{Coefficient}: The estimated value of each term
+\item \strong{SE}: Standard error of the estimate
+\item \strong{t-stat}: The standardized test statistic (\eqn{t = b_1 / SE_{b_1}})
+\item \strong{p-value}: Two-sided p-value for testing H\eqn{_0}: \eqn{\beta = 0}
+\item \strong{Lower / Upper}: Confidence interval bounds for each term
+}
+
+The footer provides a plain-English interpretation of the slope confidence
+interval, automatically adjusting wording based on whether the interval
+is entirely positive, entirely negative, or straddles zero.
+}
+
+\subsection{ANOVA Table}{
+
+The ANOVA table decomposes the total variability in the response variable
+into two sources:
+\itemize{
+\item \strong{Model (Regression)}: Variability explained by the linear relationship
+with the explanatory variable (\eqn{SS_{Model}}, \eqn{df = 1})
+\item \strong{Error (Residuals)}: Variability left unexplained by the model
+(\eqn{SS_{Error}}, \eqn{df = n - 2})
+\item \strong{Total}: Total variability in the response (\eqn{SS_{Total}},
+\eqn{df = n - 1})
+}
+
+The F-statistic is \eqn{F = MS_{Model} / MS_{Error}} and tests the same
+null hypothesis as the slope t-test: H\eqn{_0}: \eqn{\beta_1 = 0}.
+\eqn{R^2 = SS_{Model} / SS_{Total}} is shown in the footer.
+}
+
+\subsection{Connection Between the Two Tables}{
+
+For simple linear regression with one explanatory variable, the F-test
+in the ANOVA table and the two-sided t-test for the slope in the
+regression table are mathematically equivalent: \eqn{F = t^2} and both
+produce the same p-value.
+}
+}
+\examples{
+# --- Regression table, mtcars ---
+# Does car weight predict fuel efficiency?
+table_regression(
+  formula = mpg ~ wt,
+  data    = mtcars
+)
+
+# --- Regression table, custom confidence level ---
+table_regression(
+  formula    = mpg ~ wt,
+  data       = mtcars,
+  conf_level = 0.99
+)
+
+# --- ANOVA table, mtcars ---
+table_regression(
+  formula    = mpg ~ wt,
+  data       = mtcars,
+  table_type = "anova"
+)
+
+# --- Regression table, ISI dataset ---
+# Does study time predict GPA?
+table_regression(
+  formula = gpa ~ hours,
+  data    = gpa
+)
+
+# --- ANOVA table, ISI dataset ---
+table_regression(
+  formula    = gpa ~ hours,
+  data       = gpa,
+  table_type = "anova"
+)
+
+# --- Regression table, iris dataset ---
+# Does sepal length predict petal length?
+table_regression(
+  formula = Petal.Length ~ Sepal.Length,
+  data    = iris
+)
+
+# --- ANOVA table, iris dataset ---
+table_regression(
+  formula    = Petal.Length ~ Sepal.Length,
+  data       = iris,
+  table_type = "anova"
+)
+
 }

@@ -96,7 +96,7 @@
 #' proportions is recorded for each repetition. The SD of those differences
 #' estimates the SE, and the interval is point estimate \eqn{\pm 2 \times SD}.
 #' Note that unlike `test_2prop` which uses a permutation approach, the CI
-#' bootstrap resamples each group independently — this is correct for
+#' bootstrap resamples each group independently -- this is correct for
 #' confidence intervals where we are not assuming the null hypothesis.
 #'
 #' ## Theory Method
@@ -123,8 +123,10 @@
 #'   method = "theory"
 #' )
 #' print(result)
+#' \dontrun{
 #' plot(result)
 #' plot_steps(result)
+#'}
 #'
 #' # --- Summary Statistics (theory, 90% CI) ---
 #' result2 <- ci_2prop(
@@ -134,8 +136,10 @@
 #'   conf_level = 0.90, method = "theory"
 #' )
 #' print(result2)
+#' \dontrun{
 #' plot(result2)
 #' plot_steps(result2)
+#'}
 #'
 #' # --- Raw Data (2SD method) ---
 #' car_data <- mtcars
@@ -146,8 +150,10 @@
 #'   success_level = "Manual", method = "2SD"
 #' )
 #' print(result3)
+#'\dontrun{
 #' plot(result3)
 #' plot_steps(result3)
+#'}
 #'
 #' # --- Raw Data (simulation, 90% CI) ---
 #' result4 <- ci_2prop(
@@ -156,8 +162,10 @@
 #'   method = "simulation"
 #' )
 #' print(result4)
+#' \dontrun{
 #' plot(result4)
 #' plot_steps(result4)
+#'}
 #'
 #' # --- Raw Data (theory) ---
 #' result5 <- ci_2prop(
@@ -165,8 +173,10 @@
 #'   success_level = "Manual", method = "theory"
 #' )
 #' print(result5)
+#' \dontrun{
 #' plot(result5)
 #' plot_steps(result5)
+#'}
 #'
 #' @export
 ci_2prop <- function(success_1 = NULL, n_1 = NULL,
@@ -179,7 +189,7 @@ ci_2prop <- function(success_1 = NULL, n_1 = NULL,
                      sim_reps = 1000) {
 
   # ============================================================
-  # ROUTING STATION — Phase Two dual-input logic
+  # ROUTING STATION -- Phase Two dual-input logic
   # ============================================================
 
   summary_stat_provided <- !is.null(success_1) || !is.null(n_1) ||
@@ -190,7 +200,7 @@ ci_2prop <- function(success_1 = NULL, n_1 = NULL,
   if (summary_stat_provided && formula_provided) {
     cli::cli_abort(c(
       "x" = "You provided both a dataset {.emph (formula/data)} and summary statistics {.emph (success_1/n_1/success_2/n_2)}.",
-      "i" = "These are two different ways to use {.fn ci_2prop} — please choose one:",
+      "i" = "These are two different ways to use {.fn ci_2prop} -- please choose one:",
       " " = " ",
       "*" = "If you have {.strong raw data}: use {.arg formula}, {.arg data}, and {.arg success_level}, and remove the summary stat arguments.",
       "*" = "If you only have {.strong summary statistics}: use {.arg success_1}, {.arg n_1}, {.arg success_2}, and {.arg n_2}, and remove {.arg formula} and {.arg data}."
@@ -207,7 +217,7 @@ ci_2prop <- function(success_1 = NULL, n_1 = NULL,
     ))
   }
 
-  # Summary stats + simulation/2SD — not possible
+  # Summary stats + simulation/2SD -- not possible
   if (summary_stat_provided && method %in% c("2SD", "simulation")) {
     cli::cli_abort(c(
       "x" = "The {.val {method}} method is not available when using summary statistics.",
@@ -405,7 +415,7 @@ ci_2prop <- function(success_1 = NULL, n_1 = NULL,
   sim_data <- NULL
 
   if (method %in% c("2SD", "simulation")) {
-    # Independent bootstrap — resample with replacement from each group
+    # Independent bootstrap -- resample with replacement from each group
     deck1 <- c(rep(1, success_1), rep(0, fail_1))
     deck2 <- c(rep(1, success_2), rep(0, fail_2))
 
@@ -433,7 +443,7 @@ ci_2prop <- function(success_1 = NULL, n_1 = NULL,
     }
 
   } else {
-    # Theory — unpooled SE (NOT pooled, since we are not assuming pi1 = pi2)
+    # Theory -- unpooled SE (NOT pooled, since we are not assuming pi1 = pi2)
     se         <- sqrt((p1_hat * (1 - p1_hat) / n_1) +
                          (p2_hat * (1 - p2_hat) / n_2))
     multiplier <- abs(qnorm((1 - conf_level) / 2))
@@ -488,7 +498,7 @@ print.stat218_2prop_ci <- function(x, ...) {
 
   if (x$method == "theory" && x$min_cell < 10) {
     cli::cli_warn(c(
-      "!" = "Validity conditions may not be met — at least one cell has fewer than 10 observations.",
+      "!" = "Validity conditions may not be met -- at least one cell has fewer than 10 observations.",
       "i" = "Minimum cell count: {x$min_cell}.",
       "i" = "Consider using {.code method = \"2SD\"} or {.code method = \"simulation\"}."
     ))
@@ -707,7 +717,7 @@ plot.stat218_2prop_ci <- function(x, ...) {
 }
 
 # ============================================================
-# PLOT_STEPS METHOD — 3-panel patchwork
+# PLOT_STEPS METHOD -- 3-panel patchwork
 # ============================================================
 
 #' @export
@@ -716,7 +726,7 @@ plot_steps.stat218_2prop_ci <- function(x, ...) {
 
   pct <- x$conf_level * 100
 
-  # Validity warning — top of bottom panel
+  # Validity warning -- top of bottom panel
   warning_text <- ""
   if (x$method == "theory" && x$min_cell < 10) {
     warning_text <- paste0(
@@ -835,7 +845,7 @@ plot_steps.stat218_2prop_ci <- function(x, ...) {
     p_math <- ggplot2::ggplot() + ggplot2::theme_void()
   }
 
-  # ---- PANEL 3: Bottom HTML — warning at top ----
+  # ---- PANEL 3: Bottom HTML -- warning at top ----
   if (x$calc_type == "multiplier") {
     interval_html <- paste0(
       "<b>Confidence Interval</b> = (p&#770;<sub>1</sub> &minus; p&#770;<sub>2</sub>) &plusmn; ME<br>",

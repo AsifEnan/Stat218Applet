@@ -48,10 +48,10 @@
 #'   (H\eqn{_a}). Must be one of:
 #'   \describe{
 #'     \item{`"two.sided"`}{H\eqn{_a}: \eqn{\pi_1 - \pi_2 \neq 0} (default)
-#'       — use when testing if the two proportions are simply *different*.}
-#'     \item{`"greater"`}{H\eqn{_a}: \eqn{\pi_1 - \pi_2 > 0} —
+#'       -- use when testing if the two proportions are simply *different*.}
+#'     \item{`"greater"`}{H\eqn{_a}: \eqn{\pi_1 - \pi_2 > 0} --
 #'       use when testing if Group 1's proportion is *greater than* Group 2's.}
-#'     \item{`"less"`}{H\eqn{_a}: \eqn{\pi_1 - \pi_2 < 0} —
+#'     \item{`"less"`}{H\eqn{_a}: \eqn{\pi_1 - \pi_2 < 0} --
 #'       use when testing if Group 1's proportion is *less than* Group 2's.}
 #'   }
 #' @param method The method used to calculate the p-value. Must be one of:
@@ -129,8 +129,10 @@
 #'   alternative = "two.sided", method = "theory"
 #' )
 #' print(result)
+#' \dontrun{
 #' plot(result)
 #' plot_steps(result)
+#' }
 #'
 #' # --- Summary Statistics Path (one-sided, simulation) ---
 #' # Testing if Group A has a higher success rate than Group B.
@@ -141,8 +143,10 @@
 #'   alternative = "greater", method = "simulation"
 #' )
 #' print(result2)
+#' \dontrun{
 #' plot(result2)
 #' plot_steps(result2)
+#' }
 #'
 #' # --- Raw Data Path (two-sided, theory) ---
 #' # Using mtcars: does the proportion of manual cars differ by engine type?
@@ -155,8 +159,10 @@
 #'   method = "theory"
 #' )
 #' print(result3)
+#' \dontrun{
 #' plot(result3)
 #' plot_steps(result3)
+#' }
 #'
 #' # --- Raw Data Path (one-sided, simulation) ---
 #' result4 <- test_2prop(
@@ -165,8 +171,10 @@
 #'   method = "simulation"
 #' )
 #' print(result4)
+#' \dontrun{
 #' plot(result4)
 #' plot_steps(result4)
+#' }
 #'
 #' @export
 test_2prop <- function(success_1 = NULL, n_1 = NULL,
@@ -179,7 +187,7 @@ test_2prop <- function(success_1 = NULL, n_1 = NULL,
                        sim_reps = 1000) {
 
   # ============================================================
-  # ROUTING STATION — Phase Two dual-input logic
+  # ROUTING STATION -- Phase Two dual-input logic
   # ============================================================
 
   summary_stat_provided <- !is.null(success_1) || !is.null(n_1) ||
@@ -190,7 +198,7 @@ test_2prop <- function(success_1 = NULL, n_1 = NULL,
   if (summary_stat_provided && formula_provided) {
     cli::cli_abort(c(
       "x" = "You provided both a dataset {.emph (formula/data)} and summary statistics {.emph (success_1/n_1/success_2/n_2)}.",
-      "i" = "These are two different ways to use {.fn test_2prop} — please choose one:",
+      "i" = "These are two different ways to use {.fn test_2prop} -- please choose one:",
       " " = " ",
       "*" = "If you have {.strong raw data}: use {.arg formula}, {.arg data}, and {.arg success_level}, and remove the summary stat arguments.",
       "*" = "If you only have {.strong summary statistics}: use {.arg success_1}, {.arg n_1}, {.arg success_2}, and {.arg n_2}, and remove {.arg formula} and {.arg data}."
@@ -362,7 +370,7 @@ test_2prop <- function(success_1 = NULL, n_1 = NULL,
   }
 
   # ============================================================
-  # MATH ENGINE — unchanged from Phase One
+  # MATH ENGINE -- unchanged from Phase One
   # ============================================================
 
   p1_hat   <- success_1 / n_1
@@ -491,7 +499,7 @@ plot.stat218_2prop <- function(x, ...) {
   if (x$method == "theory" && x$min_cell < 10) {
     validity_subtitle <- paste0(
       "Warning: min cell count = ", x$min_cell,
-      " (< 10) — validity conditions may not be met. Consider method = \"simulation\"."
+      " (< 10) -- validity conditions may not be met. Consider method = \"simulation\"."
     )
   }
 
@@ -684,7 +692,7 @@ plot.stat218_2prop <- function(x, ...) {
 }
 
 # ============================================================
-# PLOT_STEPS METHOD — 3-panel patchwork
+# PLOT_STEPS METHOD -- 3-panel patchwork
 # ============================================================
 
 #' @export
@@ -717,7 +725,7 @@ plot_steps.stat218_2prop <- function(x, alpha = 0.05, ...) {
     p_conc <- paste0("<i>Conclusion:</i> Since the p-value is greater than our significance level (&alpha; = ", alpha, "), we lack strong evidence against the null. We <b>Fail to Reject the Null Hypothesis (H<sub>0</sub>)</b>.")
   }
 
-  # Validity warning — placed at TOP of bottom panel so it never gets cut off
+  # Validity warning -- placed at TOP of bottom panel so it never gets cut off
   warning_text <- ""
   if (x$method == "theory" && x$min_cell < 10) {
     warning_text <- paste0(
@@ -739,7 +747,7 @@ plot_steps.stat218_2prop <- function(x, alpha = 0.05, ...) {
       r"($Z_{sim} = \frac{(\hat{p}_1 - \hat{p}_2) - 0}{SD_{null}}$)",
       output = "character"
     )
-    # Plain number — no \mathbf{}
+    # Plain number -- no \mathbf{}
     tex_calc <- latex2exp::TeX(
       paste0("$Z_{sim} = \\frac{", round(x$obs_diff, 4), " - 0}{",
              round(x$se, 4), "} = ", round(x$stat_val, 3), "$"),
@@ -759,7 +767,7 @@ plot_steps.stat218_2prop <- function(x, alpha = 0.05, ...) {
       r"($Z = \frac{\hat{p}_1 - \hat{p}_2 - 0}{\sqrt{\hat{p}(1 - \hat{p})(\frac{1}{n_1} + \frac{1}{n_2})}}$)",
       output = "character"
     )
-    # Plain number — no \mathbf{}
+    # Plain number -- no \mathbf{}
     tex_calc <- latex2exp::TeX(
       paste0("$Z = \\frac{", round(x$p1_hat, 4), " - ", round(x$p2_hat, 4),
              "}{\\sqrt{", round(x$p_pooled, 4), "(1 - ", round(x$p_pooled, 4),
@@ -812,7 +820,7 @@ plot_steps.stat218_2prop <- function(x, alpha = 0.05, ...) {
     ggplot2::theme_void() +
     ggplot2::theme(plot.margin = ggplot2::margin(t = 10, r = 20, b = 10, l = 40))
 
-  # ---- PANEL 3: Bottom HTML — warning at top so it never clips ----
+  # ---- PANEL 3: Bottom HTML -- warning at top so it never clips ----
   bottom_html <- paste0(
     warning_text,
     "<i>Interpretation of Statistic:</i> The observed difference in proportions is ",
@@ -840,7 +848,7 @@ plot_steps.stat218_2prop <- function(x, alpha = 0.05, ...) {
     ggplot2::theme_void() +
     ggplot2::theme(plot.margin = ggplot2::margin(t = 0, r = 20, b = 20, l = 20))
 
-  # ---- Stitch — taller bottom panel to prevent clipping ----
+  # ---- Stitch -- taller bottom panel to prevent clipping ----
   return(
     p_top / p_math / p_bottom +
       patchwork::plot_layout(heights = c(2.0, 1.8, 3.5))

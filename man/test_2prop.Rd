@@ -60,10 +60,10 @@ This argument is \strong{required} when using \code{formula} and \code{data}.}
 (H\eqn{_a}). Must be one of:
 \describe{
 \item{\code{"two.sided"}}{H\eqn{_a}: \eqn{\pi_1 - \pi_2 \neq 0} (default)
-— use when testing if the two proportions are simply \emph{different}.}
-\item{\code{"greater"}}{H\eqn{_a}: \eqn{\pi_1 - \pi_2 > 0} —
+-- use when testing if the two proportions are simply \emph{different}.}
+\item{\code{"greater"}}{H\eqn{_a}: \eqn{\pi_1 - \pi_2 > 0} --
 use when testing if Group 1's proportion is \emph{greater than} Group 2's.}
-\item{\code{"less"}}{H\eqn{_a}: \eqn{\pi_1 - \pi_2 < 0} —
+\item{\code{"less"}}{H\eqn{_a}: \eqn{\pi_1 - \pi_2 < 0} --
 use when testing if Group 1's proportion is \emph{less than} Group 2's.}
 }}
 
@@ -169,8 +169,10 @@ result <- test_2prop(
   alternative = "two.sided", method = "theory"
 )
 print(result)
+\dontrun{
 plot(result)
 plot_steps(result)
+}
 
 # --- Summary Statistics Path (one-sided, simulation) ---
 # Testing if Group A has a higher success rate than Group B.
@@ -181,8 +183,10 @@ result2 <- test_2prop(
   alternative = "greater", method = "simulation"
 )
 print(result2)
+\dontrun{
 plot(result2)
 plot_steps(result2)
+}
 
 # --- Raw Data Path (two-sided, theory) ---
 # Using mtcars: does the proportion of manual cars differ by engine type?
@@ -195,8 +199,10 @@ result3 <- test_2prop(
   method = "theory"
 )
 print(result3)
+\dontrun{
 plot(result3)
 plot_steps(result3)
+}
 
 # --- Raw Data Path (one-sided, simulation) ---
 result4 <- test_2prop(
@@ -205,7 +211,9 @@ result4 <- test_2prop(
   method = "simulation"
 )
 print(result4)
+\dontrun{
 plot(result4)
 plot_steps(result4)
+}
 
 }

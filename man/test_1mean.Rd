@@ -18,7 +18,7 @@ test_1mean(
 )
 }
 \arguments{
-\item{x_bar}{The observed sample mean — the average value calculated from
+\item{x_bar}{The observed sample mean -- the average value calculated from
 your sample. For example, if the average resting heart rate of 30
 students was 72.4 beats per minute, \code{x_bar = 72.4}.
 \strong{Only used when NOT providing \code{formula} and \code{data}.}}
@@ -42,7 +42,7 @@ your sample data (this is the most common case in practice). When
 this is chosen and \code{method = "theory"}, a \strong{T-test} is used because
 the true population spread is unknown.}
 \item{\code{"population"}}{The true population standard deviation
-(\eqn{\sigma}) is known — this is rare in real life but sometimes
+(\eqn{\sigma}) is known -- this is rare in real life but sometimes
 given in textbook problems. When chosen and \code{method = "theory"},
 a \strong{Z-test} is used.}
 }}
@@ -64,12 +64,12 @@ from 65 inches, \code{null_mu = 65}. Default is \code{0}.}
 \item{alternative}{The direction of the alternative hypothesis
 (H\eqn{_a}). Must be one of:
 \describe{
-\item{\code{"two.sided"}}{H\eqn{_a}: \eqn{\mu \neq} \code{null_mu} (default) —
+\item{\code{"two.sided"}}{H\eqn{_a}: \eqn{\mu \neq} \code{null_mu} (default) --
 use when testing if the mean is \emph{different from} the null in either
 direction.}
-\item{\code{"greater"}}{H\eqn{_a}: \eqn{\mu >} \code{null_mu} —
+\item{\code{"greater"}}{H\eqn{_a}: \eqn{\mu >} \code{null_mu} --
 use when testing if the mean is \emph{greater than} the null.}
-\item{\code{"less"}}{H\eqn{_a}: \eqn{\mu <} \code{null_mu} —
+\item{\code{"less"}}{H\eqn{_a}: \eqn{\mu <} \code{null_mu} --
 use when testing if the mean is \emph{less than} the null.}
 }}
 
@@ -103,7 +103,7 @@ test statistic, and p-value.}
 region(s), p-value annotation on the shaded area(s), and the SD of
 the Null Distribution labeled on the plot.}
 \item{\code{plot_steps(result)}}{Displays a detailed three-panel
-step-by-step interpretation with proper fraction notation — great
+step-by-step interpretation with proper fraction notation -- great
 for checking your work or studying before an exam.}
 }
 }
@@ -182,7 +182,9 @@ result <- test_1mean(x_bar = 8450, n = 40, sd_val = 1200,
                      alternative = "greater", method = "theory")
 print(result)
 plot(result)
+\dontrun{
 plot_steps(result)
+}
 
 # --- Summary Statistics Path (two-sided, theory T-test) ---
 # Testing whether the average exam score differs from 75.
@@ -192,7 +194,9 @@ result2 <- test_1mean(x_bar = 78.3, n = 25, sd_val = 9.1,
                       alternative = "two.sided", method = "theory")
 print(result2)
 plot(result2)
+\dontrun{
 plot_steps(result2)
+}
 
 # --- Raw Data Path (one-sided, simulation) ---
 # Using mtcars: testing whether the average MPG exceeds 18.
@@ -201,7 +205,9 @@ result3 <- test_1mean(formula = ~ mpg, data = mtcars,
                       method = "simulation")
 print(result3)
 plot(result3)
+\dontrun{
 plot_steps(result3)
+}
 
 # --- Raw Data Path (two-sided, theory T-test) ---
 # Using mtcars: testing whether average horsepower differs from 150.
@@ -210,6 +216,8 @@ result4 <- test_1mean(formula = ~ hp, data = mtcars,
                       method = "theory")
 print(result4)
 plot(result4)
+\dontrun{
 plot_steps(result4)
+}
 
 }

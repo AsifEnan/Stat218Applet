@@ -1,11 +1,19 @@
 Package: Stat218Applet
-Title: What the Package Does (One Line, Title Case)
+Title: Statistical Inference Functions for Introductory Statistics course
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    person("Asif", "Enan", , "aenan2@huskers.unl.edu", role = c("aut", "cre"))
+Description: Provides functions for simulation-based and theory-based
+    statistical inference, designed for use in STAT 218 at the University
+    of Nebraska-Lincoln or any college level introductory statistics
+    course. Terminology and methods follow the course textbook,
+    Introduction to Statistical Investigations by Tintle, Chance, Cobb,
+    Rossman, Roy, Swanson, and VanderStoep. The package offers a
+    consistent workflow for hypothesis testing and confidence interval
+    construction, each function produces a printed summary, a
+    visualization of the null or sampling distribution, and a step-by-step
+    walkthrough of the underlying mathematics.
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
@@ -16,5 +24,14 @@ Imports:
     gt,
     latex2exp,
     patchwork
+Suggests:
+    fivethirtyeight,
+    knitr,
+    readxl,
+    rmarkdown
 URL: https://github.com/AsifEnan/Stat218Applet
 BugReports: https://github.com/AsifEnan/Stat218Applet/issues
+Depends: 
+    R (>= 3.5)
+LazyData: true
+VignetteBuilder: knitr

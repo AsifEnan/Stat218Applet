@@ -56,16 +56,10 @@
 #' @param sim_reps The number of bootstrap samples when `method = "2SD"` or
 #'   `method = "simulation"`. Default is `1000`. Increasing to `5000` gives
 #'   a more stable interval.
-#' @param plot_type The type of plot to display for the bootstrap distribution
-#'   when `method = "2SD"` or `method = "simulation"`. Must be one of:
-#'   \describe{
-#'     \item{`"histogram"`}{(default) A histogram of the simulated bootstrap
-#'       proportions. Consistent with the rest of the package.}
-#'     \item{`"dotplot"`}{A dot plot showing each simulated proportion as an
-#'       individual dot stacked by value. Useful for visualizing the discrete
-#'       nature of the bootstrap distribution for proportions. Only available
-#'       for simulation-based methods.}
-#'   }
+#' @note To display the bootstrap distribution as a dotplot instead of a
+#'   histogram, use \code{plot(result, plot_type = "dotplot")} after
+#'   running this function. Only available for \code{method = "2SD"} or
+#'   \code{method = "simulation"}.
 #'
 #' @return An S3 object of class `stat218_1prop_ci` containing all computed
 #'   values. You can use the following methods on the result:
@@ -105,22 +99,28 @@
 #' # --- Summary Statistics (2SD method, default) ---
 #' result <- ci_1prop(successes = 42, n = 80)
 #' print(result)
+#' \dontrun{
 #' plot(result)
 #' plot_steps(result)
+#'}
 #'
 #' # --- Summary Statistics (theory, 95% CI) ---
 #' result2 <- ci_1prop(successes = 42, n = 80,
 #'                     conf_level = 0.95, method = "theory")
 #' print(result2)
+#'\dontrun{
 #' plot(result2)
 #' plot_steps(result2)
+#'}
 #'
 #' # --- Summary Statistics (simulation, 90% CI) ---
 #' result3 <- ci_1prop(successes = 42, n = 80,
 #'                     conf_level = 0.90, method = "simulation")
 #' print(result3)
+#'\dontrun{
 #' plot(result3)
 #' plot_steps(result3)
+#'}
 #'
 #' # --- Raw Data (2SD method) ---
 #' car_data <- mtcars
@@ -128,15 +128,19 @@
 #' result4 <- ci_1prop(formula = ~ transmission, data = car_data,
 #'                     success_level = "Manual", method = "2SD")
 #' print(result4)
+#' \dontrun{
 #' plot(result4)
 #' plot_steps(result4)
+#'}
 #'
 #' # --- Raw Data (theory) ---
 #' result5 <- ci_1prop(formula = ~ transmission, data = car_data,
 #'                     success_level = "Manual", method = "theory")
 #' print(result5)
+#' \dontrun{
 #' plot(result5)
 #' plot_steps(result5)
+#'}
 #'
 #' @export
 ci_1prop <- function(successes = NULL, n = NULL,
@@ -147,7 +151,7 @@ ci_1prop <- function(successes = NULL, n = NULL,
                      sim_reps = 1000) {
 
   # ============================================================
-  # ROUTING STATION — Phase Two dual-input logic
+  # ROUTING STATION -- Phase Two dual-input logic
   # ============================================================
 
   summary_stat_provided <- !is.null(successes) || !is.null(n)
@@ -157,7 +161,7 @@ ci_1prop <- function(successes = NULL, n = NULL,
   if (summary_stat_provided && formula_provided) {
     cli::cli_abort(c(
       "x" = "You provided both a dataset {.emph (formula/data)} and summary statistics {.emph (successes/n)}.",
-      "i" = "These are two different ways to use {.fn ci_1prop} — please choose one:",
+      "i" = "These are two different ways to use {.fn ci_1prop} -- please choose one:",
       " " = " ",
       "*" = "If you have {.strong raw data}: use {.arg formula}, {.arg data}, and {.arg success_level}, and remove {.arg successes} and {.arg n}.",
       "*" = "If you only have {.strong summary statistics}: use {.arg successes} and {.arg n}, and remove {.arg formula} and {.arg data}."
@@ -399,6 +403,13 @@ print.stat218_1prop_ci <- function(x, ...) {
 # PLOT METHOD
 # ============================================================
 
+#' Plot Method for ci_1prop Results
+#'
+#' @param x A \code{stat218_1prop_ci} result object from \code{ci_1prop()}.
+#' @param plot_type The type of plot for the bootstrap distribution.
+#'   Must be \code{"histogram"} (default) or \code{"dotplot"}.
+#'   Only available when \code{method = "2SD"} or \code{method = "simulation"}.
+#' @param ... Additional arguments (currently unused).
 #' @export
 #' @method plot stat218_1prop_ci
 plot.stat218_1prop_ci <- function(x, plot_type = "histogram", ...) {
@@ -531,7 +542,7 @@ plot.stat218_1prop_ci <- function(x, plot_type = "histogram", ...) {
 
   } else {
 
-    # Theory curve — unchanged
+    # Theory curve -- unchanged
     x_vals    <- seq(x$p_hat - 4 * x$se, x$p_hat + 4 * x$se,
                      length.out = 1000)
     y_vals    <- dnorm(x_vals, mean = x$p_hat, sd = x$se)
@@ -576,7 +587,7 @@ plot.stat218_1prop_ci <- function(x, plot_type = "histogram", ...) {
 }
 
 # ============================================================
-# PLOT_STEPS METHOD — 3-panel patchwork
+# PLOT_STEPS METHOD -- 3-panel patchwork
 # ============================================================
 
 #' @export
@@ -585,7 +596,7 @@ plot_steps.stat218_1prop_ci <- function(x, ...) {
 
   pct <- x$conf_level * 100
 
-  # Validity warning — top of bottom panel
+  # Validity warning -- top of bottom panel
   warning_text <- ""
   if (x$method == "theory" &&
       (x$successes < 10 || (x$n - x$successes) < 10)) {

@@ -48,11 +48,11 @@ against. Must be a number strictly between 0 and 1. Default is \code{0.5}.}
 \item{alternative}{The direction of the alternative hypothesis
 (H\eqn{_a}). Must be one of:
 \describe{
-\item{\code{"two.sided"}}{H\eqn{_a}: \eqn{\pi \neq} \code{null_pi} (default) —
+\item{\code{"two.sided"}}{H\eqn{_a}: \eqn{\pi \neq} \code{null_pi} (default) --
 use when testing if the proportion is \emph{different from} the null.}
-\item{\code{"greater"}}{H\eqn{_a}: \eqn{\pi >} \code{null_pi} —
+\item{\code{"greater"}}{H\eqn{_a}: \eqn{\pi >} \code{null_pi} --
 use when testing if the proportion is \emph{greater than} the null.}
-\item{\code{"less"}}{H\eqn{_a}: \eqn{\pi <} \code{null_pi} —
+\item{\code{"less"}}{H\eqn{_a}: \eqn{\pi <} \code{null_pi} --
 use when testing if the proportion is \emph{less than} the null.}
 }}
 
@@ -128,7 +128,7 @@ We standardize our observed \eqn{\hat{p}} using the formula:
 \deqn{Z = \frac{\hat{p} - \pi_0}{SD_{null}}, \quad \text{where }
 SD_{null} = \sqrt{\frac{\pi_0(1-\pi_0)}{n}}}
 The SD of the null distribution is computed from the formula rather than
-simulated — but it represents the exact same concept.
+simulated -- but it represents the exact same concept.
 }
 
 \subsection{Validity Conditions for Theory Method}{
@@ -150,7 +150,9 @@ result <- test_1prop(successes = 52, n = 80, null_pi = 0.5,
                      alternative = "two.sided", method = "theory")
 print(result)
 plot(result)
+\dontrun{
 plot_steps(result)
+}
 
 # --- Raw Data Path ---
 # Using mtcars: is the proportion of manual transmission cars different from 50\%?
@@ -161,6 +163,8 @@ result2 <- test_1prop(formula = ~ transmission, data = car_data,
                       alternative = "two.sided", method = "simulation")
 print(result2)
 plot(result2)
+\dontrun{
 plot_steps(result2)
+}
 
 }

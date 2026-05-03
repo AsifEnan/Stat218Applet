@@ -1,217 +1,740 @@
 #' Simple Linear Regression Hypothesis Test (Slope)
 #'
-#' @param x Numeric vector for the explanatory variable
-#' @param y Numeric vector for the response variable
-#' @param alternative "two.sided", "greater", or "less"
-#' @param method "theory" or "simulation"
-#' @param sim_reps Number of iterations for Simulation (default 1000)
+#' @description
+#' Tests whether the slope of a simple linear regression model is
+#' statistically significantly different from zero -- that is, whether
+#' the explanatory variable has a real linear effect on the response
+#' variable in the population.
 #'
-#' @return An S3 object of class stat218_test_regression
+#' This function accepts input in **two ways**:
+#'
+#' - **Summary Statistics:** You already know the observed slope, its
+#'   standard error, and the sample size (common in textbook problems where
+#'   regression output is summarized for you). Pass `slope`, `se`, and `n`
+#'   directly.
+#'
+#' - **Raw Data:** You have an actual dataset loaded into R. Pass
+#'   `formula` and `data` instead, using a two-sided formula of the form
+#'   `response ~ explanatory`, and the function will fit the regression
+#'   model and extract all values automatically.
+#'
+#' @param slope The observed sample slope (\eqn{b_1}) from the fitted
+#'   regression model. For example, if the slope of the regression line
+#'   relating study hours to GPA was 0.12, use `slope = 0.12`.
+#'   **Only used when NOT providing `formula` and `data`.**
+#' @param se The standard error of the slope (\eqn{SE_{b_1}}) from the
+#'   regression output. This measures how much the slope estimate would
+#'   vary across repeated samples. For example, `se = 0.034`.
+#'   **Only used when NOT providing `formula` and `data`.**
+#' @param n A whole number representing the total number of paired
+#'   observations used to fit the model. For example, if you used 42
+#'   data points, use `n = 42`.
+#'   **Only used when NOT providing `formula` and `data`.**
+#' @param formula A two-sided formula of the form `response ~ explanatory`
+#'   identifying the response (y) and explanatory (x) variables in your
+#'   dataset. For example, `formula = gpa ~ hours` where both columns
+#'   exist in `data`. The function fits the regression model automatically.
+#'   **Only used when NOT providing `slope`, `se`, and `n`.**
+#' @param data A data frame containing the variables named in `formula`.
+#'   **Only used when NOT providing `slope`, `se`, and `n`.**
+#' @param alternative The direction of the alternative hypothesis
+#'   (H\eqn{_a}). Must be one of:
+#'   \describe{
+#'     \item{`"two.sided"`}{H\eqn{_a}: \eqn{\beta_1 \neq 0} (default) -- use
+#'       when testing whether the slope is *different from* zero in either
+#'       direction.}
+#'     \item{`"greater"`}{H\eqn{_a}: \eqn{\beta_1 > 0} -- use when testing
+#'       whether the slope is *positive* (response increases as explanatory
+#'       increases).}
+#'     \item{`"less"`}{H\eqn{_a}: \eqn{\beta_1 < 0} -- use when testing
+#'       whether the slope is *negative* (response decreases as explanatory
+#'       increases).}
+#'   }
+#' @param method The method used to calculate the p-value. Must be one of:
+#'   \describe{
+#'     \item{`"theory"`}{(default) Uses the T-statistic \eqn{t = b_1 / SE_{b_1}}
+#'       and a T-distribution with \eqn{df = n - 2} to compute the p-value.
+#'       Appropriate when the residuals of the regression model are roughly
+#'       normally distributed and the relationship appears linear.}
+#'     \item{`"simulation"`}{Uses a randomization test. The response variable
+#'       is repeatedly shuffled to break any linear relationship, and the
+#'       slope is recomputed each time to build a null distribution centered
+#'       at \eqn{\beta_1 = 0}. Requires raw data via `formula` and `data`.}
+#'   }
+#' @param sim_reps The number of shuffles to perform when
+#'   `method = "simulation"`. Default is `1000`. Increasing to `5000` or
+#'   `10000` gives a more stable p-value estimate.
+#'
+#' @return An S3 object of class `stat218_test_regression` containing all
+#'   computed values. You can use the following methods on the result:
+#'   \describe{
+#'     \item{`print(result)`}{Displays a clean summary including the observed
+#'       slope, standard error, test statistic, degrees of freedom, and
+#'       p-value.}
+#'     \item{`plot(result)`}{Plots the null distribution (simulated or
+#'       theoretical T-curve) with orange shaded tail(s), p-value annotation,
+#'       and the SD of the Null Distribution labeled on the plot.}
+#'     \item{`plot_steps(result)`}{Displays a detailed three-panel
+#'       step-by-step interpretation with proper fraction notation -- great
+#'       for checking your work or studying before an exam.}
+#'   }
+#'
+#' @details
+#' ## The Core Idea
+#' In a regression slope test, we are asking: *"Is the slope we estimated
+#' from our sample large enough to conclude that a real linear relationship
+#' exists in the population, or could a slope this large have occurred just
+#' by random chance even if \eqn{\beta_1 = 0}?"*
+#'
+#' The null hypothesis is always H\eqn{_0}: \eqn{\beta_1 = 0} -- no linear
+#' relationship between the explanatory and response variable in the population.
+#'
+#' ## Theory Method
+#' When `method = "theory"`, the T-statistic is:
+#' \deqn{t = \frac{b_1 - 0}{SE_{b_1}}}
+#' This follows a T-distribution with \eqn{df = n - 2} under the null
+#' hypothesis. The standard error \eqn{SE_{b_1}} measures how much the
+#' slope estimate varies across repeated samples.
+#'
+#' ## Simulation Method (Randomization Test)
+#' When `method = "simulation"`, the response variable is shuffled
+#' repeatedly to destroy any linear relationship while keeping the
+#' explanatory variable fixed. Each shuffle produces a simulated slope
+#' under the null hypothesis. The proportion of simulated slopes as
+#' extreme as the observed slope is the p-value. Requires raw data
+#' via `formula` and `data`.
+#'
+#' ## Validity Conditions (Theory Method)
+#' The theory-based method is appropriate when:
+#' - The relationship between the two variables is linear (check a
+#'   scatterplot first using `explore_2vars()`)
+#' - The residuals from the fitted model are roughly normally distributed
+#' - The sample size is at least 20, or the residuals are clearly normal
+#'
+#' @examples
+#' # --- Summary Statistics Path (two-sided, theory) ---
+#' # Regression output shows slope = 0.12, SE = 0.034, n = 42
+#' result <- test_regression(
+#'   slope       = 0.12,
+#'   se          = 0.034,
+#'   n           = 42,
+#'   alternative = "two.sided",
+#'   method      = "theory"
+#' )
+#' print(result)
+#' \dontrun{
+#' plot(result)
+#' plot_steps(result)
+#' }
+#'
+#' # --- Raw Data Path (theory) ---
+#' # Using the gpa dataset: does study hours predict GPA?
+#' result2 <- test_regression(
+#'   formula     = gpa ~ hours,
+#'   data        = gpa,
+#'   alternative = "greater",
+#'   method      = "theory"
+#' )
+#' print(result2)
+#' \dontrun{
+#' plot(result2)
+#' plot_steps(result2)
+#' }
+#'
+#' # --- Raw Data Path (simulation) ---
+#' result3 <- test_regression(
+#'   formula     = gpa ~ hours,
+#'   data        = gpa,
+#'   alternative = "greater",
+#'   method      = "simulation",
+#'   sim_reps    = 5000
+#' )
+#' print(result3)
+#' \dontrun{
+#' plot(result3)
+#' }
+#'
 #' @export
-test_regression <- function(x, y, alternative = "two.sided", method = "theory", sim_reps = 1000) {
+test_regression <- function(slope = NULL, se = NULL, n = NULL,
+                            formula = NULL, data = NULL,
+                            alternative = "two.sided",
+                            method = "theory",
+                            sim_reps = 1000) {
 
-  # 1. Clean the data
-  valid_data <- complete.cases(x, y)
-  x_clean <- x[valid_data]
-  y_clean <- y[valid_data]
+  # ============================================================
+  # ROUTING STATION
+  # ============================================================
 
-  n <- length(x_clean)
-  if (n < 3) stop("Error: You need at least 3 valid data pairs to test a regression slope.")
+  summary_stat_provided <- !is.null(slope) || !is.null(se) || !is.null(n)
+  formula_provided      <- !is.null(formula) || !is.null(data)
 
-  # Base Model Calculations
-  mod <- lm(y_clean ~ x_clean)
-  b1_obs <- unname(coef(mod)[2])
-  se_b1 <- summary(mod)$coefficients[2, 2]
-  t_stat <- b1_obs / se_b1
-  df <- n - 2
+  # Both paths provided
+  if (summary_stat_provided && formula_provided) {
+    cli::cli_abort(c(
+      "x" = "You provided both a dataset {.emph (formula/data)} and summary statistics {.emph (slope/se/n)}.",
+      "i" = "These are two different ways to use {.fn test_regression} -- please choose one:",
+      " " = " ",
+      "*" = "If you have {.strong raw data}: use {.arg formula} and {.arg data}, and remove {.arg slope}, {.arg se}, and {.arg n}.",
+      "*" = "If you only have {.strong summary statistics}: use {.arg slope}, {.arg se}, and {.arg n}, and remove {.arg formula} and {.arg data}."
+    ))
+  }
 
-  # 2. Theory vs Simulation Routing
+  # Neither path provided
+  if (!summary_stat_provided && !formula_provided) {
+    cli::cli_abort(c(
+      "x" = "No input was provided.",
+      "i" = "You must supply either:",
+      "*" = "{.strong Summary statistics}: provide {.arg slope}, {.arg se}, and {.arg n}.",
+      "*" = "{.strong Raw data}: provide {.arg formula} and {.arg data}."
+    ))
+  }
+
+  # Summary stats + simulation -- not possible
+  if (summary_stat_provided && method == "simulation") {
+    cli::cli_abort(c(
+      "x" = "Simulation is not available when using summary statistics.",
+      "i" = "The simulation method works by shuffling individual data values.",
+      "i" = "Since you only provided summary statistics, there are no individual values to shuffle.",
+      "i" = "Please either:",
+      "*" = "Use {.code method = \"theory\"} with your summary statistics, or",
+      "*" = "Provide raw data via {.arg formula} and {.arg data} to use simulation."
+    ))
+  }
+
+  # Raw data vectors
+  x_clean <- NULL
+  y_clean <- NULL
+  x_name  <- "Explanatory"
+  y_name  <- "Response"
+
+  # ---- Raw data path ----
+  if (formula_provided) {
+
+    if (is.null(data)) {
+      cli::cli_abort(c(
+        "x" = "You provided {.arg formula} but forgot to provide {.arg data}.",
+        "i" = "Please also pass in your data frame. For example:",
+        " " = "{.code test_regression(formula = y ~ x, data = your_data)}"
+      ))
+    }
+
+    if (is.null(formula)) {
+      cli::cli_abort(c(
+        "x" = "You provided {.arg data} but forgot to provide {.arg formula}.",
+        "i" = "The formula should look like: {.code response ~ explanatory}"
+      ))
+    }
+
+    vars <- all.vars(formula)
+
+    if (length(vars) != 2) {
+      cli::cli_abort(c(
+        "x" = "The formula must reference exactly two variables in the form {.code response ~ explanatory}.",
+        "i" = "You provided: {.code {deparse(formula)}}"
+      ))
+    }
+
+    y_name <- vars[1]
+    x_name <- vars[2]
+
+    if (!y_name %in% names(data)) {
+      cli::cli_abort(c(
+        "x" = "The response variable {.val {y_name}} was not found in your data.",
+        "i" = "Available variables are: {.val {names(data)}}."
+      ))
+    }
+
+    if (!x_name %in% names(data)) {
+      cli::cli_abort(c(
+        "x" = "The explanatory variable {.val {x_name}} was not found in your data.",
+        "i" = "Available variables are: {.val {names(data)}}."
+      ))
+    }
+
+    y_col <- data[[y_name]]
+    x_col <- data[[x_name]]
+
+    if (!is.numeric(y_col)) {
+      cli::cli_abort(c(
+        "x" = "The response variable {.val {y_name}} must be numeric for a regression test.",
+        "i" = "It appears to contain non-numeric values. Check your data."
+      ))
+    }
+
+    if (!is.numeric(x_col)) {
+      cli::cli_abort(c(
+        "x" = "The explanatory variable {.val {x_name}} must be numeric for a regression test.",
+        "i" = "It appears to contain non-numeric values. Check your data."
+      ))
+    }
+
+    valid_idx <- complete.cases(x_col, y_col)
+    x_clean   <- x_col[valid_idx]
+    y_clean   <- y_col[valid_idx]
+    n         <- length(x_clean)
+
+    mod   <- lm(y_clean ~ x_clean)
+    slope <- unname(coef(mod)[2])
+    se    <- summary(mod)$coefficients[2, 2]
+
+    cli::cli_inform(c(
+      "v" = "Regression of {.val {y_name}} ~ {.val {x_name}}:",
+      "*" = "n = {n}",
+      "*" = "Observed Slope (b1) = {round(slope, 4)}",
+      "*" = "Standard Error (SE) = {round(se, 4)}"
+    ))
+  }
+
+  # ---- Input validation ----
+  if (!is.numeric(slope)) {
+    cli::cli_abort(c(
+      "x" = "{.arg slope} must be a numeric value.",
+      "i" = "You provided: {.val {slope}}"
+    ))
+  }
+
+  if (!is.numeric(se) || se <= 0) {
+    cli::cli_abort(c(
+      "x" = "{.arg se} must be a positive number.",
+      "i" = "You provided: {.val {se}}",
+      "i" = "Standard errors cannot be zero or negative."
+    ))
+  }
+
+  if (!is.numeric(n) || n != round(n) || n < 3) {
+    cli::cli_abort(c(
+      "x" = "{.arg n} must be a whole number of at least 3.",
+      "i" = "You provided: {.val {n}}"
+    ))
+  }
+
+  if (!alternative %in% c("two.sided", "greater", "less")) {
+    cli::cli_abort(c(
+      "x" = "{.arg alternative} must be one of {.val two.sided}, {.val greater}, or {.val less}.",
+      "i" = "You provided: {.val {alternative}}"
+    ))
+  }
+
+  if (!method %in% c("theory", "simulation")) {
+    cli::cli_abort(c(
+      "x" = "{.arg method} must be either {.val theory} or {.val simulation}.",
+      "i" = "You provided: {.val {method}}"
+    ))
+  }
+
+  if (!is.numeric(sim_reps) || sim_reps < 100) {
+    cli::cli_abort(c(
+      "x" = "{.arg sim_reps} must be a number of at least 100.",
+      "i" = "You provided: {.val {sim_reps}}"
+    ))
+  }
+
+  # ============================================================
+  # MATH ENGINE
+  # ============================================================
+
+  df     <- n - 2
+  t_stat <- slope / se
+
+  sim_data <- NULL
+
   if (method == "theory") {
-    if (alternative == "greater") p_val <- 1 - pt(t_stat, df = df)
-    else if (alternative == "less") p_val <- pt(t_stat, df = df)
-    else p_val <- 2 * pt(-abs(t_stat), df = df)
 
-    res <- list(
-      n = n, b1_obs = b1_obs, se_b1 = se_b1, t_stat = t_stat, df = df, p_val = p_val,
-      alternative = alternative, method = method
-    )
+    if (alternative == "greater")    p_val <- 1 - pt(t_stat, df = df)
+    else if (alternative == "less")  p_val <- pt(t_stat, df = df)
+    else                             p_val <- 2 * pt(-abs(t_stat), df = df)
 
-  } else if (method == "simulation") {
-    # Randomization Test: Shuffle 'y' to break the relationship and extract slope
+    sd_null <- se
+
+  } else {
+
     sim_data <- replicate(sim_reps, {
       shuffled_y <- sample(y_clean, size = n, replace = FALSE)
       unname(coef(lm(shuffled_y ~ x_clean))[2])
     })
 
-    if (alternative == "greater") p_val <- mean(sim_data >= b1_obs)
-    else if (alternative == "less") p_val <- mean(sim_data <= b1_obs)
-    else p_val <- mean(abs(sim_data) >= abs(b1_obs))
+    if (alternative == "greater")    p_val <- mean(sim_data >= slope)
+    else if (alternative == "less")  p_val <- mean(sim_data <= slope)
+    else                             p_val <- mean(abs(sim_data) >= abs(slope))
 
-    res <- list(
-      n = n, b1_obs = b1_obs, se_b1 = se_b1, t_stat = t_stat, df = df, p_val = p_val,
-      alternative = alternative, method = method, sim_data = sim_data
-    )
-
-  } else {
-    stop("Error: Method must be 'theory' or 'simulation'.")
+    sd_null <- sd(sim_data)
+    t_stat  <- slope / sd_null
   }
+
+  # Validity warning
+  if (method == "theory" && n < 20) {
+    cli::cli_warn(c(
+      "!" = "Validity conditions for the theory-based test may not be met.",
+      "i" = "The sample size is {n}, which is less than 20.",
+      "i" = "Proceed only if the residuals from the model appear roughly normally distributed.",
+      "i" = "Otherwise consider using {.code method = \"simulation\"} with raw data."
+    ))
+  }
+
+  # ============================================================
+  # BUNDLE INTO S3 OBJECT
+  # ============================================================
+
+  res <- list(
+    slope       = slope,
+    se          = se,
+    n           = n,
+    df          = df,
+    t_stat      = t_stat,
+    sd_null     = sd_null,
+    p_val       = p_val,
+    alternative = alternative,
+    method      = method,
+    sim_data    = sim_data,
+    x_clean     = x_clean,
+    y_clean     = y_clean,
+    x_name      = x_name,
+    y_name      = y_name
+  )
 
   class(res) <- "stat218_test_regression"
   return(res)
 }
 
+# ============================================================
+# PRINT METHOD
+# ============================================================
+
 #' @export
 #' @method print stat218_test_regression
 print.stat218_test_regression <- function(x, ...) {
-  cli::cli_h1("Regression Slope Hypothesis Test ({stringr::str_to_title(x$method)})")
+
+  cli::cli_h1("Regression Slope Hypothesis Test ({tools::toTitleCase(x$method)})")
   cli::cli_bullets(c(
     "i" = "Null Hypothesis: beta_1 = 0",
     "i" = "Alternative: beta_1 {ifelse(x$alternative == 'two.sided', '!=', ifelse(x$alternative == 'greater', '>', '<'))} 0",
-    "*" = "Valid Pairs (n): {x$n}",
-    "*" = "Observed Slope (b_1): {round(x$b1_obs, 4)}",
-    "*" = "Standard Error (SE): {round(x$se_b1, 4)}",
-    "*" = "P-value: {round(x$p_val, 4)}"
+    "*" = "Sample Size (n): {x$n}",
+    "*" = "Observed Slope (b1): {round(x$slope, 4)}",
+    "*" = "Standard Error (SE): {round(x$se, 4)}",
+    "*" = "SD of Null Distribution: {round(x$sd_null, 4)}",
+    "*" = "Test Statistic (T): {round(x$t_stat, 4)}",
+    "*" = "Degrees of Freedom: {x$df}",
+    "*" = "P-Value: {round(x$p_val, 4)}"
   ))
+
+  if (x$method == "theory" && x$n < 20) {
+    cli::cli_warn(c(
+      "!" = "Validity conditions may not be met -- n = {x$n} is less than 20.",
+      "i" = "Verify that the model residuals are roughly normally distributed.",
+      "i" = "Consider using {.code method = \"simulation\"} if raw data is available."
+    ))
+  }
+
   invisible(x)
 }
+
+# ============================================================
+# PLOT METHOD
+# ============================================================
 
 #' @export
 #' @method plot stat218_test_regression
 plot.stat218_test_regression <- function(x, ...) {
 
-  # Dynamic Axis Setup
-  if (x$method == "simulation") {
-    target_val <- x$b1_obs
-    x_label <- "Simulated Slope (b_1)"
-    limit <- max(abs(c(target_val, x$sim_data))) * 1.2
-    x_min <- -limit
-    x_max <- limit
-  } else {
-    target_val <- x$t_stat
-    x_label <- "Standardized Statistic (t)"
-    limit <- max(abs(target_val) * 1.2, 4)
-    x_min <- -limit
-    x_max <- limit
+  sd_null_label <- paste0("SD of Null Distribution = ", round(x$sd_null, 4))
+
+  validity_caption <- ""
+  if (x$method == "theory" && x$n < 20) {
+    validity_caption <- paste0(
+      "Warning: n = ", x$n, " is less than 20. ",
+      "Validity conditions may not be met. Consider method = \"simulation\"."
+    )
   }
 
-  p_bottom <- ggplot2::ggplot() +
-    ggplot2::geom_segment(ggplot2::aes(x = x_min, xend = x_max, y = 0, yend = 0), linewidth = 1.5, color = "#2C3E50") +
-    ggplot2::geom_point(ggplot2::aes(x = target_val, y = 0), size = 6, color = "#3498DB") +
-    ggplot2::geom_text(ggplot2::aes(x = target_val, y = -0.4, label = paste("Observed =", round(target_val, 3))), size = 5, fontface = "bold", color = "#2C3E50") +
-    ggplot2::scale_y_continuous(limits = c(-1, 1)) +
-    ggplot2::labs(x = x_label, y = "") +
-    ggplot2::theme_minimal() +
-    ggplot2::theme(axis.text.y = ggplot2::element_blank(), axis.ticks.y = ggplot2::element_blank(), panel.grid.minor.y = ggplot2::element_blank(), panel.grid.major.y = ggplot2::element_blank())
-
-  p_bottom <- p_bottom + ggplot2::coord_cartesian(xlim = c(x_min, x_max))
-
+  # ---- Simulation branch ----
   if (x$method == "simulation") {
+
     plot_data <- data.frame(sim = x$sim_data)
 
-    if (x$alternative == "greater") plot_data$tail <- plot_data$sim >= x$b1_obs
-    else if (x$alternative == "less") plot_data$tail <- plot_data$sim <= x$b1_obs
-    else plot_data$tail <- abs(plot_data$sim) >= abs(x$b1_obs)
+    if (x$alternative == "greater")
+      plot_data$tail <- plot_data$sim >= x$slope
+    else if (x$alternative == "less")
+      plot_data$tail <- plot_data$sim <= x$slope
+    else
+      plot_data$tail <- abs(plot_data$sim) >= abs(x$slope)
 
-    p_top <- ggplot2::ggplot(plot_data, ggplot2::aes(x = sim, fill = tail)) +
-      ggplot2::geom_histogram(color = "white", bins = 40) +
-      ggplot2::geom_vline(xintercept = x$b1_obs, color = "black", linetype = "dashed", linewidth = 1) +
+    v_lines <- if (x$alternative == "two.sided")
+      c(-abs(x$slope), abs(x$slope)) else x$slope
+
+    p_dist <- ggplot2::ggplot(plot_data, ggplot2::aes(x = sim, fill = tail)) +
+      ggplot2::geom_histogram(color = "white", bins = 40, boundary = 0)
+
+    if (x$alternative == "two.sided") {
+      half_pval <- round(x$p_val / 2, 4)
+      p_dist <- p_dist +
+        ggplot2::annotate("text",
+                          x = -abs(x$slope) * 1.5, y = Inf, vjust = 2,
+                          label = paste0("p/2 = ", half_pval),
+                          color = "#D55E00", fontface = "bold", size = 4) +
+        ggplot2::annotate("text",
+                          x =  abs(x$slope) * 1.5, y = Inf, vjust = 2,
+                          label = paste0("p/2 = ", half_pval),
+                          color = "#D55E00", fontface = "bold", size = 4)
+    } else {
+      p_dist <- p_dist +
+        ggplot2::annotate("text",
+                          x = x$slope, y = Inf, vjust = 2,
+                          label = paste0("p-value = ", round(x$p_val, 4)),
+                          color = "#D55E00", fontface = "bold", size = 4)
+    }
+
+    p_dist <- p_dist +
+      ggplot2::geom_vline(xintercept = v_lines, color = "black",
+                          linetype = "dashed", linewidth = 1) +
       ggplot2::scale_fill_manual(values = c("FALSE" = "gray80", "TRUE" = "#D55E00")) +
-      ggplot2::labs(title = "Simulated Null Distribution (Shuffled y)", subtitle = "Centered at beta_1 = 0", x = "", y = "Count") +
+      ggplot2::annotate("text",
+                        x = Inf, y = Inf, hjust = 1.05, vjust = 4,
+                        label = sd_null_label,
+                        color = "#2C3E50", fontface = "italic", size = 3.8) +
+      ggplot2::labs(
+        title    = "Randomization Distribution of Regression Slopes",
+        subtitle = paste0("Based on ", length(x$sim_data),
+                          " shuffles | Centered at beta_1 = 0"),
+        x = "Simulated Slope (b1)", y = "Count"
+      ) +
       ggplot2::theme_minimal() +
-      ggplot2::theme(legend.position = "none") +
-      ggplot2::coord_cartesian(xlim = c(x_min, x_max))
+      ggplot2::theme(legend.position = "none")
 
   } else {
-    if (x$alternative == "greater") v_lines <- x$t_stat
-    else if (x$alternative == "less") v_lines <- x$t_stat
-    else v_lines <- c(-abs(x$t_stat), abs(x$t_stat))
 
-    x_vals <- seq(x_min, x_max, length.out = 1000)
-    y_vals <- dt(x_vals, df = x$df)
+    # ---- Theory branch ----
+    limit     <- max(abs(x$t_stat) * 1.5, 4)
+    x_vals    <- seq(-limit, limit, length.out = 1000)
+    y_vals    <- dt(x_vals, df = x$df)
     plot_data <- data.frame(val = x_vals, dens = y_vals)
 
-    if (x$alternative == "greater") plot_data$tail <- plot_data$val >= x$t_stat
-    else if (x$alternative == "less") plot_data$tail <- plot_data$val <= x$t_stat
-    else plot_data$tail <- abs(plot_data$val) >= abs(x$t_stat)
+    v_lines <- if (x$alternative == "two.sided")
+      c(-abs(x$t_stat), abs(x$t_stat)) else x$t_stat
 
-    p_top <- ggplot2::ggplot(plot_data, ggplot2::aes(x = val, y = dens)) +
+    if (x$alternative == "greater")
+      plot_data$tail <- plot_data$val >= x$t_stat
+    else if (x$alternative == "less")
+      plot_data$tail <- plot_data$val <= x$t_stat
+    else
+      plot_data$tail <- abs(plot_data$val) >= abs(x$t_stat)
+
+    y_mid <- max(y_vals) * 0.25
+
+    p_dist <- ggplot2::ggplot(plot_data, ggplot2::aes(x = val, y = dens)) +
       ggplot2::geom_line(linewidth = 1) +
-      ggplot2::geom_area(data = subset(plot_data, tail == TRUE), ggplot2::aes(group = val > 0), fill = "#D55E00", alpha = 0.7) +
-      ggplot2::geom_vline(xintercept = v_lines, color = "black", linetype = "dashed", linewidth = 1) +
-      ggplot2::labs(title = paste0("Theoretical T-Distribution (df = ", x$df, ")"), subtitle = "Centered at beta_1 = 0", x = "", y = "Density") +
+      ggplot2::geom_area(
+        data = subset(plot_data, tail == TRUE),
+        ggplot2::aes(group = val > 0),
+        fill = "#D55E00", alpha = 0.7
+      ) +
+      ggplot2::geom_vline(xintercept = v_lines, color = "black",
+                          linetype = "dashed", linewidth = 1)
+
+    if (x$alternative == "two.sided") {
+      half_pval <- round(x$p_val / 2, 4)
+      p_dist <- p_dist +
+        ggplot2::annotate("text",
+                          x = -abs(x$t_stat) * 1.5, y = y_mid,
+                          label = paste0("p/2 = ", half_pval),
+                          color = "#D55E00", fontface = "bold", size = 4) +
+        ggplot2::annotate("text",
+                          x =  abs(x$t_stat) * 1.5, y = y_mid,
+                          label = paste0("p/2 = ", half_pval),
+                          color = "#D55E00", fontface = "bold", size = 4)
+    } else {
+      p_dist <- p_dist +
+        ggplot2::annotate("text",
+                          x = x$t_stat * 1.5, y = y_mid,
+                          label = paste0("p-value = ", round(x$p_val, 4)),
+                          color = "#D55E00", fontface = "bold", size = 4)
+    }
+
+    p_dist <- p_dist +
+      ggplot2::annotate("text",
+                        x = Inf, y = Inf, hjust = 1.05, vjust = 2,
+                        label = sd_null_label,
+                        color = "#2C3E50", fontface = "italic", size = 3.8) +
+      ggplot2::labs(
+        title    = paste0("Theoretical T-Distribution (df = ", x$df, ")"),
+        subtitle = "Centered at beta_1 = 0",
+        x = "Standardized Statistic (T)", y = "Density"
+      ) +
       ggplot2::theme_minimal() +
-      ggplot2::theme(axis.text.y = ggplot2::element_blank(), axis.ticks.y = ggplot2::element_blank())
+      ggplot2::theme(axis.text.y  = ggplot2::element_blank(),
+                     axis.ticks.y = ggplot2::element_blank())
   }
 
-  return(p_top / p_bottom + patchwork::plot_layout(heights = c(3, 1)))
+  if (validity_caption != "") {
+    p_dist <- p_dist +
+      ggplot2::labs(caption = validity_caption) +
+      ggplot2::theme(
+        plot.caption = ggplot2::element_text(
+          color = "#C0392B", face = "bold", size = 9, hjust = 0
+        )
+      )
+  }
+
+  return(p_dist)
 }
+
+# ============================================================
+# PLOT_STEPS METHOD
+# ============================================================
 
 #' @export
 #' @method plot_steps stat218_test_regression
 plot_steps.stat218_test_regression <- function(x, alpha = 0.05, ...) {
 
-  alt_sign <- ifelse(x$alternative == "two.sided", "&ne;", ifelse(x$alternative == "greater", "&gt;", "&lt;"))
   pval_pct <- round(x$p_val * 100, 2)
+  t_dir    <- ifelse(x$t_stat > 0, "above", "below")
 
-  p_conc <- ifelse(x$p_val <= alpha,
-                   paste0("<i>Conclusion:</i> Since the p-value is &le; &alpha; (", alpha, "), we have strong evidence against the null. We <b>Reject the Null Hypothesis (H<sub>0</sub>)</b>."),
-                   paste0("<i>Conclusion:</i> Since the p-value is > &alpha; (", alpha, "), we lack strong evidence against the null. We <b>Fail to Reject the Null Hypothesis (H<sub>0</sub>)</b>."))
-
-  top_html <- paste0(
-    "<span style='font-size:20pt; color:#2C3E50;'><b>Detailed Analysis & Interpretation</b></span><br><br>",
-    "<span style='font-size:14pt;'><b>1. The Sample Data (Slope)</b></span><br>",
-    "&bull; <b>Valid Pairs (n):</b> ", x$n, "<br>",
-    "&bull; <b>Observed Slope (b<sub>1</sub>):</b> ", round(x$b1_obs, 4), "<br>",
-    "&bull; <b>Alternative Hypothesis:</b> H<sub>A</sub>: &beta;<sub>1</sub> ", alt_sign, " 0<br><br>"
-  )
-
-  if (x$method == "theory") {
-    top_html <- paste0(top_html, "<span style='font-size:14pt;'><b>2. Standardized Test Statistic</b></span><br>",
-                       "We calculate a <b>t-statistic</b> using degrees of freedom df = n - 2 (", x$df, ").")
-
-    tex_formula <- latex2exp::TeX(r"($t = \frac{b_1 - 0}{SE_{b_1}}$)", output = "character")
-    tex_calc <- latex2exp::TeX(paste0("$t = \\frac{", round(x$b1_obs, 3), " - 0}{", round(x$se_b1, 3), "} = ", round(x$t_stat, 3), "$"), output = "character")
-
-    p_math_data <- data.frame(x = c(0.1, 0.1), y = c(3.5, 0), label = c(tex_formula, tex_calc))
-    p_math <- ggplot2::ggplot(p_math_data, ggplot2::aes(x = x, y = y, label = label)) +
-      ggplot2::geom_text(parse = TRUE, size = 6, hjust = 0) +
-      ggplot2::coord_cartesian(xlim = c(0, 1), ylim = c(-2.0, 5.0), clip = "off") +
-      ggplot2::theme_void() +
-      ggplot2::theme(plot.margin = ggplot2::margin(t=10, r=20, b=10, l=40))
-
-    dir_text <- ifelse(x$alternative == "greater", "greater than or equal to", ifelse(x$alternative == "less", "less than or equal to", "as extreme as or more extreme than"))
-    interp_text <- paste0("<i>Interpretation of P-value:</i> Assuming the true population slope is exactly 0, there is a ", pval_pct, "% probability of observing a standardized statistic ", dir_text, " ", round(x$t_stat, 2), " just by random chance.<br>")
-
+  if (x$alternative == "greater") {
+    dir_text   <- "greater than or equal to"
+    alt_symbol <- "&gt;"
+  } else if (x$alternative == "less") {
+    dir_text   <- "less than or equal to"
+    alt_symbol <- "&lt;"
   } else {
-    top_html <- paste0(top_html, "<span style='font-size:14pt;'><b>2. Randomization Test (Simulation)</b></span><br>",
-                       "We simulate the null hypothesis (no linear relationship) by randomly shuffling the response variable 1,000 times, calculating a simulated slope (<i>b<sub>1</sub></i>) for each shuffle.")
-
-    p_math <- ggplot2::ggplot() + ggplot2::theme_void()
-
-    dir_text <- ifelse(x$alternative == "greater", "greater than or equal to", ifelse(x$alternative == "less", "less than or equal to", "as extreme as or more extreme than"))
-    interp_text <- paste0("<i>Interpretation of P-value:</i> Assuming the true population slope is 0 (&beta;<sub>1</sub> = 0), there is a ", pval_pct, "% probability of observing a sample slope ", dir_text, " ", round(x$b1_obs, 4), " just by random shuffling.<br>")
+    dir_text   <- "as extreme as or more extreme than"
+    alt_symbol <- "&ne;"
   }
 
-  p_top <- ggplot2::ggplot() +
-    ggtext::geom_textbox(ggplot2::aes(x = 0, y = 1, label = top_html), width = ggplot2::unit(0.95, "npc"), hjust = 0, vjust = 1, box.color = NA, fill = NA, size = 5, lineheight = 1.5) +
-    ggplot2::coord_cartesian(xlim = c(0, 1), ylim = c(-0.5, 1)) + ggplot2::theme_void() +
-    ggplot2::theme(plot.margin = ggplot2::margin(t=20, r=20, b=0, l=20))
+  if (abs(x$t_stat) >= 2) {
+    z_conc <- "Since the standardized statistic is outside the typical &plusmn;2 range, it is an unusual result. We <b>Reject the Null Hypothesis (H<sub>0</sub>)</b>."
+  } else {
+    z_conc <- "Since the standardized statistic is within the typical &plusmn;2 range, it is a plausible result under random chance. We <b>Fail to Reject the Null Hypothesis (H<sub>0</sub>)</b>."
+  }
 
+  if (x$p_val <= alpha) {
+    p_conc <- paste0("<i>Conclusion:</i> Since the p-value is less than or equal to our significance level (&alpha; = ", alpha, "), we have strong evidence against the null. We <b>Reject the Null Hypothesis (H<sub>0</sub>)</b>.")
+  } else {
+    p_conc <- paste0("<i>Conclusion:</i> Since the p-value is greater than our significance level (&alpha; = ", alpha, "), we lack strong evidence against the null. We <b>Fail to Reject the Null Hypothesis (H<sub>0</sub>)</b>.")
+  }
+
+  # Validity warning -- at TOP of bottom panel
+  warning_text <- ""
+  if (x$method == "theory" && x$n < 20) {
+    warning_text <- paste0(
+      "<span style='color:#C0392B; font-size:12pt;'><b>&#9888; Validity Condition Warning:</b> ",
+      "n = ", x$n, " is less than 20. ",
+      "Consider rerunning with simulation method for more reliable results.</span><br><br>"
+    )
+  }
+
+  # ---- Method-specific blurb and equations ----
+  if (x$method == "simulation") {
+
+    method_blurb <- paste0(
+      "We use a <b>Randomization Test</b> -- the response variable is shuffled ",
+      "repeatedly to break any linear relationship, simulating a world where ",
+      "&beta;<sub>1</sub> = 0. The slope is recomputed for each shuffle.<br>",
+      "&bull; SD of Null Distribution = ", round(x$sd_null, 4), "<br><br>",
+      "<i>The formula and calculation are shown below:</i>"
+    )
+
+    tex_formula <- latex2exp::TeX(
+      r"($Z_{sim} = \frac{b_1 - 0}{SD_{null}}$)",
+      output = "character"
+    )
+    tex_calc <- latex2exp::TeX(
+      paste0("$Z_{sim} = \\frac{", round(x$slope, 4), " - 0}{",
+             round(x$sd_null, 4), "} = ", round(x$t_stat, 3), "$"),
+      output = "character"
+    )
+
+  } else {
+
+    method_blurb <- paste0(
+      "We compute a <b>T-statistic</b> by dividing the observed slope by its ",
+      "standard error. Degrees of freedom: df = n - 2 = ", x$df, ".<br>",
+      "&bull; SD of Null Distribution = SE<sub>b1</sub> = ", round(x$sd_null, 4), "<br><br>",
+      "<i>The formula and calculation are shown below:</i>"
+    )
+
+    tex_formula <- latex2exp::TeX(
+      r"($T = \frac{b_1 - 0}{SD_{null}}$)",
+      output = "character"
+    )
+    tex_calc <- latex2exp::TeX(
+      paste0("$T = \\frac{", round(x$slope, 4), " - 0}{",
+             round(x$sd_null, 4), "} = ", round(x$t_stat, 3), "$"),
+      output = "character"
+    )
+  }
+
+  # ---- PANEL 1: Top HTML ----
+  top_html <- paste0(
+    "<span style='font-size:20pt; color:#2C3E50;'><b>Detailed Analysis & Interpretation</b></span><br><br>",
+
+    "<span style='font-size:14pt;'><b>1. The Data & Hypotheses</b></span><br>",
+    "&bull; <b>Sample Size (n):</b> ", x$n, "<br>",
+    "&bull; <b>Observed Slope (b<sub>1</sub>):</b> ", round(x$slope, 4), "<br>",
+    "&bull; <b>Standard Error (SE<sub>b1</sub>):</b> ", round(x$se, 4), "<br>",
+    "&bull; <b>Null Hypothesis:</b> H<sub>0</sub>: &beta;<sub>1</sub> = 0<br>",
+    "&bull; <b>Alternative Hypothesis:</b> H<sub>A</sub>: &beta;<sub>1</sub> ", alt_symbol, " 0<br><br>",
+
+    "<span style='font-size:14pt;'><b>2. Standardized Test Statistic (T)</b></span><br>",
+    method_blurb
+  )
+
+  p_top <- ggplot2::ggplot() +
+    ggtext::geom_textbox(
+      ggplot2::aes(x = 0, y = 1, label = top_html),
+      width = ggplot2::unit(0.95, "npc"),
+      hjust = 0, vjust = 1,
+      box.color = NA, fill = NA,
+      size = 5, lineheight = 1.5
+    ) +
+    ggplot2::coord_cartesian(xlim = c(0, 1), ylim = c(-0.8, 1)) +
+    ggplot2::theme_void() +
+    ggplot2::theme(plot.margin = ggplot2::margin(t = 20, r = 20, b = 0, l = 20))
+
+  # ---- PANEL 2: Equations ----
+  p_math_data <- data.frame(
+    x     = c(0.1, 0.1),
+    y     = c(3.5, 0),
+    label = c(tex_formula, tex_calc)
+  )
+
+  p_math <- ggplot2::ggplot(p_math_data,
+                            ggplot2::aes(x = x, y = y, label = label)) +
+    ggplot2::geom_text(parse = TRUE, size = 6, hjust = 0) +
+    ggplot2::coord_cartesian(xlim = c(0, 1), ylim = c(-2.0, 5.0), clip = "off") +
+    ggplot2::theme_void() +
+    ggplot2::theme(plot.margin = ggplot2::margin(t = 10, r = 20, b = 10, l = 40))
+
+  # ---- PANEL 3: Bottom HTML -- warning at top ----
   bottom_html <- paste0(
+    warning_text,
+    "<i>Interpretation of Statistic:</i> The observed slope is ",
+    abs(round(x$t_stat, 2)), " standard errors <b>", t_dir,
+    "</b> the null hypothesized value of 0.<br>",
+    "<i>Conclusion:</i> ", z_conc, "<br><br>",
+
     "<span style='font-size:14pt;'><b>3. The P-Value</b></span><br>",
     "&bull; <b>p-value = ", round(x$p_val, 4), "</b> (", pval_pct, "%)<br><br>",
-    interp_text,
+
+    "<i>Interpretation of P-value:</i> Assuming the true population slope is exactly 0 ",
+    "(&beta;<sub>1</sub> = 0), there is a ", pval_pct,
+    "% probability of observing a slope ", dir_text, " ",
+    round(x$slope, 4), " just by random chance.<br>",
     p_conc
   )
 
   p_bottom <- ggplot2::ggplot() +
-    ggtext::geom_textbox(ggplot2::aes(x = 0, y = 1, label = bottom_html), width = ggplot2::unit(0.95, "npc"), hjust = 0, vjust = 1, box.color = NA, fill = NA, size = 5, lineheight = 1.5) +
-    ggplot2::coord_cartesian(xlim = c(0, 1), ylim = c(-0.5, 1)) + ggplot2::theme_void() +
-    ggplot2::theme(plot.margin = ggplot2::margin(t=0, r=20, b=20, l=20))
+    ggtext::geom_textbox(
+      ggplot2::aes(x = 0, y = 1, label = bottom_html),
+      width = ggplot2::unit(0.95, "npc"),
+      hjust = 0, vjust = 1,
+      box.color = NA, fill = NA,
+      size = 5, lineheight = 1.5
+    ) +
+    ggplot2::coord_cartesian(xlim = c(0, 1), ylim = c(-0.15, 1)) +
+    ggplot2::theme_void() +
+    ggplot2::theme(plot.margin = ggplot2::margin(t = 0, r = 20, b = 20, l = 20))
 
-  if (x$method == "theory") {
-    return(p_top / p_math / p_bottom + patchwork::plot_layout(heights = c(2.2, 1.8, 3.8)))
-  } else {
-    return(p_top / p_bottom + patchwork::plot_layout(heights = c(2.5, 3)))
-  }
+  return(
+    p_top / p_math / p_bottom +
+      patchwork::plot_layout(heights = c(2.6, 1.8, 3.5))
+  )
 }

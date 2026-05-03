@@ -2,26 +2,160 @@
 % Please edit documentation in R/explore_2vars.R
 \name{explore_2vars}
 \alias{explore_2vars}
-\title{Explore Bivariate Data (Correlation and Simple Linear Regression)}
+\title{Explore the Relationship Between Two Variables}
 \usage{
-explore_2vars(x, y, group = NULL, x_name = "X", y_name = "Y", fit_line = FALSE)
+explore_2vars(formula, data, group = NULL, fit_line = FALSE)
 }
 \arguments{
-\item{x}{Numeric vector for the explanatory variable}
+\item{formula}{A two-sided formula of the form \code{response ~ explanatory}.
+The response variable (\code{y}) is placed on the vertical axis and the
+explanatory variable (\code{x}) on the horizontal axis. Both quantitative
+and categorical explanatory variables are supported. For example:
+\itemize{
+\item \code{formula = gpa ~ hours} (both numeric -- scatterplot)
+\item \code{formula = time ~ frame} (numeric ~ categorical -- boxplot)
+}}
 
-\item{y}{Numeric vector for the response variable}
+\item{data}{A data frame containing the variables named in \code{formula}
+and, optionally, the variable named in \code{group}.}
 
-\item{group}{Optional categorical vector for grouping}
+\item{group}{An optional character string naming a categorical column
+in \code{data} to use for grouping. Only applies when both variables are
+numeric. When supplied, separate colored points, crosshairs
+(correlation mode), or regression lines (regression mode) are drawn
+for each group level. For example, \code{group = "Sex"} if \code{data} has a
+column called \code{Sex}. Default is \code{NULL} (no grouping).}
 
-\item{x_name}{Character string for the X-axis label}
-
-\item{y_name}{Character string for the Y-axis label}
-
-\item{fit_line}{Logical; FALSE for Correlation mode, TRUE for Regression mode}
+\item{fit_line}{Logical. Only applies when both variables are numeric.
+Controls which display mode is used:
+\describe{
+\item{\code{FALSE}}{(default) \strong{Correlation Mode} -- draws crosshairs at
+the sample means and annotates the correlation coefficient. Use
+this first to assess the form, direction, and strength of the
+association before running \code{test_correlation()}.}
+\item{\code{TRUE}}{\strong{Regression Mode} -- overlays the least-squares
+regression line and displays the fitted equation and \eqn{R^2}
+in a second panel. Use this before running \code{test_regression()}.}
+}
+When the explanatory variable is categorical, \code{fit_line} is ignored
+and a boxplot is always produced.}
 }
 \value{
-A ggplot2 or patchwork object
+A \code{ggplot2} object (correlation or boxplot mode) or a
+\code{patchwork} object combining the scatterplot and equation panel
+(regression mode). The result can be further customized with
+standard \code{ggplot2} functions if needed.
 }
 \description{
-Explore Bivariate Data (Correlation and Simple Linear Regression)
+Produces an appropriate visualization and summary statistics for the
+relationship between two variables. The function automatically detects
+variable types and routes to the correct display mode:
+\itemize{
+\item \strong{Both numeric} -- Scatterplot with crosshairs and correlation
+annotation (correlation mode), or a regression line with equation
+panel (regression mode). An optional \code{group} argument produces
+separate colored points and lines per group.
+\item \strong{Numeric response, categorical explanatory} -- Side-by-side
+boxplots with individual points overlaid, group means marked, and
+group sample sizes annotated. Use this before running
+\code{test_2mean()} or \code{ci_2mean()}.
+}
+
+This function accepts input via \code{formula} and \code{data} only.
+}
+\details{
+\subsection{When to Use This Function}{
+
+Always explore your data visually before running a formal inference
+procedure. \code{explore_2vars()} is designed to be the natural first step:
+\itemize{
+\item Before \code{test_2mean()} or \code{ci_2mean()}: use
+\code{explore_2vars(formula = response ~ group, data = mydata)} to see
+side-by-side boxplots of the two groups.
+\item Before \code{test_correlation()}: use
+\code{explore_2vars(formula = y ~ x, data = mydata)} to check for a
+linear relationship.
+\item Before \code{test_regression()}: use
+\code{explore_2vars(formula = y ~ x, data = mydata, fit_line = TRUE)} to
+see the regression line and equation.
+}
+}
+
+\subsection{Boxplot Mode (Numeric Response ~ Categorical Explanatory)}{
+
+When the explanatory variable is categorical, the function produces:
+\itemize{
+\item Side-by-side boxplots for each group
+\item Individual data points overlaid (jittered to avoid overlap)
+\item A red triangle marking the group mean
+\item Group sample sizes annotated below each box
+\item A subtitle summarizing the mean and SD for each group
+}
+}
+
+\subsection{Correlation Strength Interpretation}{
+
+In correlation mode, the subtitle automatically interprets \eqn{r}:
+\itemize{
+\item \eqn{|r| \geq 0.7}: \strong{Strong}
+\item \eqn{0.4 \leq |r| < 0.7}: \strong{Moderate}
+\item \eqn{|r| < 0.4}: \strong{Weak}
+}
+
+Direction is described as \strong{Positive} (\eqn{r > 0}) or
+\strong{Negative} (\eqn{r < 0}).
+}
+
+\subsection{Regression Equation Panel}{
+
+In regression mode, the lower panel displays:
+\itemize{
+\item The general form: \eqn{\hat{y} = b_0 + b_1 x}
+\item The specific fitted equation with numeric coefficients
+\item The correlation coefficient \eqn{r} and \eqn{R^2}
+}
+
+When \code{group} is supplied, separate equations are shown for each group.
+}
+}
+\examples{
+# --- Boxplot Mode: numeric response, categorical explanatory ---
+# Do carbon and steel bike frames produce different ride times?
+explore_2vars(
+  formula = time ~ frame,
+  data    = biketimes
+)
+
+# Do breastfed children have higher GCI scores?
+explore_2vars(
+  formula = gci ~ feeding,
+  data    = breastfeedintell
+)
+
+# --- Correlation Mode: both numeric ---
+# Is there a linear association between body temp and heart rate?
+explore_2vars(
+  formula = heart_rate ~ body_temp,
+  data    = tempheart
+)
+
+# --- Regression Mode: both numeric ---
+# How well does study time predict GPA?
+explore_2vars(
+  formula  = gpa ~ hours,
+  data     = gpa,
+  fit_line = TRUE
+)
+
+# --- Regression Mode with Grouping ---
+\dontrun{
+mtcars$engine_type <- ifelse(mtcars$vs == 0, "V-Shaped", "Straight")
+explore_2vars(
+  formula  = mpg ~ wt,
+  data     = mtcars,
+  group    = "engine_type",
+  fit_line = TRUE
+)
+}
+
 }

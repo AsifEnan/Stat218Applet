@@ -17,7 +17,7 @@
 #'   function will compute the mean, sample size, and standard deviation
 #'   for you automatically.
 #'
-#' @param x_bar The observed sample mean — the average value calculated from
+#' @param x_bar The observed sample mean -- the average value calculated from
 #'   your sample. For example, if the average resting heart rate of 30
 #'   students was 72.4 beats per minute, `x_bar = 72.4`.
 #'   **Only used when NOT providing `formula` and `data`.**
@@ -38,7 +38,7 @@
 #'       this is chosen and `method = "theory"`, a **T-test** is used because
 #'       the true population spread is unknown.}
 #'     \item{`"population"`}{The true population standard deviation
-#'       (\eqn{\sigma}) is known — this is rare in real life but sometimes
+#'       (\eqn{\sigma}) is known -- this is rare in real life but sometimes
 #'       given in textbook problems. When chosen and `method = "theory"`,
 #'       a **Z-test** is used.}
 #'   }
@@ -56,12 +56,12 @@
 #' @param alternative The direction of the alternative hypothesis
 #'   (H\eqn{_a}). Must be one of:
 #'   \describe{
-#'     \item{`"two.sided"`}{H\eqn{_a}: \eqn{\mu \neq} `null_mu` (default) —
+#'     \item{`"two.sided"`}{H\eqn{_a}: \eqn{\mu \neq} `null_mu` (default) --
 #'       use when testing if the mean is *different from* the null in either
 #'       direction.}
-#'     \item{`"greater"`}{H\eqn{_a}: \eqn{\mu >} `null_mu` —
+#'     \item{`"greater"`}{H\eqn{_a}: \eqn{\mu >} `null_mu` --
 #'       use when testing if the mean is *greater than* the null.}
-#'     \item{`"less"`}{H\eqn{_a}: \eqn{\mu <} `null_mu` —
+#'     \item{`"less"`}{H\eqn{_a}: \eqn{\mu <} `null_mu` --
 #'       use when testing if the mean is *less than* the null.}
 #'   }
 #' @param method The method used to calculate the p-value. Must be one of:
@@ -92,7 +92,7 @@
 #'       region(s), p-value annotation on the shaded area(s), and the SD of
 #'       the Null Distribution labeled on the plot.}
 #'     \item{`plot_steps(result)`}{Displays a detailed three-panel
-#'       step-by-step interpretation with proper fraction notation — great
+#'       step-by-step interpretation with proper fraction notation -- great
 #'       for checking your work or studying before an exam.}
 #'   }
 #'
@@ -142,7 +142,9 @@
 #'                      alternative = "greater", method = "theory")
 #' print(result)
 #' plot(result)
+#' \dontrun{
 #' plot_steps(result)
+#'}
 #'
 #' # --- Summary Statistics Path (two-sided, theory T-test) ---
 #' # Testing whether the average exam score differs from 75.
@@ -152,7 +154,9 @@
 #'                       alternative = "two.sided", method = "theory")
 #' print(result2)
 #' plot(result2)
+#' \dontrun{
 #' plot_steps(result2)
+#' }
 #'
 #' # --- Raw Data Path (one-sided, simulation) ---
 #' # Using mtcars: testing whether the average MPG exceeds 18.
@@ -161,7 +165,9 @@
 #'                       method = "simulation")
 #' print(result3)
 #' plot(result3)
+#' \dontrun{
 #' plot_steps(result3)
+#'}
 #'
 #' # --- Raw Data Path (two-sided, theory T-test) ---
 #' # Using mtcars: testing whether average horsepower differs from 150.
@@ -170,7 +176,9 @@
 #'                       method = "theory")
 #' print(result4)
 #' plot(result4)
+#' \dontrun{
 #' plot_steps(result4)
+#' }
 #'
 #' @export
 test_1mean <- function(x_bar = NULL, n = NULL, sd_val = NULL,
@@ -182,17 +190,17 @@ test_1mean <- function(x_bar = NULL, n = NULL, sd_val = NULL,
                        sim_reps = 1000) {
 
   # ============================================================
-  # ROUTING STATION — Phase Two dual-input logic
+  # ROUTING STATION -- Phase Two dual-input logic
   # ============================================================
 
   summary_stat_provided <- !is.null(x_bar) || !is.null(n) || !is.null(sd_val)
   formula_provided      <- !is.null(formula) || !is.null(data)
 
-  # Case 1: Both paths provided — conflict error
+  # Case 1: Both paths provided -- conflict error
   if (summary_stat_provided && formula_provided) {
     cli::cli_abort(c(
       "x" = "You provided both a dataset {.emph (formula/data)} and summary statistics {.emph (x_bar/n/sd_val)}.",
-      "i" = "These are two different ways to use {.fn test_1mean} — please choose one:",
+      "i" = "These are two different ways to use {.fn test_1mean} -- please choose one:",
       " " = " ",
       "*" = "If you have {.strong raw data}: use {.arg formula} and {.arg data}, and remove {.arg x_bar}, {.arg n}, and {.arg sd_val}.",
       "*" = "If you only have {.strong summary statistics}: use {.arg x_bar}, {.arg n}, and {.arg sd_val}, and remove {.arg formula} and {.arg data}."
@@ -209,7 +217,7 @@ test_1mean <- function(x_bar = NULL, n = NULL, sd_val = NULL,
     ))
   }
 
-  # Case 2: Raw data path — extract x_bar, n, sd_val
+  # Case 2: Raw data path -- extract x_bar, n, sd_val
   if (formula_provided) {
 
     if (is.null(data)) {
@@ -346,7 +354,7 @@ test_1mean <- function(x_bar = NULL, n = NULL, sd_val = NULL,
   }
 
   # ============================================================
-  # MATH ENGINE — unchanged from Phase One
+  # MATH ENGINE -- unchanged from Phase One
   # ============================================================
 
   if (method == "theory") {
@@ -582,7 +590,7 @@ plot.stat218_1mean <- function(x, ...) {
 }
 
 # ============================================================
-# PLOT_STEPS METHOD — 3-panel patchwork with plotmath fractions
+# PLOT_STEPS METHOD -- 3-panel patchwork with plotmath fractions
 # ============================================================
 
 #' @export

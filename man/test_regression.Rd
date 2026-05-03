@@ -5,27 +5,187 @@
 \title{Simple Linear Regression Hypothesis Test (Slope)}
 \usage{
 test_regression(
-  x,
-  y,
+  slope = NULL,
+  se = NULL,
+  n = NULL,
+  formula = NULL,
+  data = NULL,
   alternative = "two.sided",
   method = "theory",
   sim_reps = 1000
 )
 }
 \arguments{
-\item{x}{Numeric vector for the explanatory variable}
+\item{slope}{The observed sample slope (\eqn{b_1}) from the fitted
+regression model. For example, if the slope of the regression line
+relating study hours to GPA was 0.12, use \code{slope = 0.12}.
+\strong{Only used when NOT providing \code{formula} and \code{data}.}}
 
-\item{y}{Numeric vector for the response variable}
+\item{se}{The standard error of the slope (\eqn{SE_{b_1}}) from the
+regression output. This measures how much the slope estimate would
+vary across repeated samples. For example, \code{se = 0.034}.
+\strong{Only used when NOT providing \code{formula} and \code{data}.}}
 
-\item{alternative}{"two.sided", "greater", or "less"}
+\item{n}{A whole number representing the total number of paired
+observations used to fit the model. For example, if you used 42
+data points, use \code{n = 42}.
+\strong{Only used when NOT providing \code{formula} and \code{data}.}}
 
-\item{method}{"theory" or "simulation"}
+\item{formula}{A two-sided formula of the form \code{response ~ explanatory}
+identifying the response (y) and explanatory (x) variables in your
+dataset. For example, \code{formula = gpa ~ hours} where both columns
+exist in \code{data}. The function fits the regression model automatically.
+\strong{Only used when NOT providing \code{slope}, \code{se}, and \code{n}.}}
 
-\item{sim_reps}{Number of iterations for Simulation (default 1000)}
+\item{data}{A data frame containing the variables named in \code{formula}.
+\strong{Only used when NOT providing \code{slope}, \code{se}, and \code{n}.}}
+
+\item{alternative}{The direction of the alternative hypothesis
+(H\eqn{_a}). Must be one of:
+\describe{
+\item{\code{"two.sided"}}{H\eqn{_a}: \eqn{\beta_1 \neq 0} (default) -- use
+when testing whether the slope is \emph{different from} zero in either
+direction.}
+\item{\code{"greater"}}{H\eqn{_a}: \eqn{\beta_1 > 0} -- use when testing
+whether the slope is \emph{positive} (response increases as explanatory
+increases).}
+\item{\code{"less"}}{H\eqn{_a}: \eqn{\beta_1 < 0} -- use when testing
+whether the slope is \emph{negative} (response decreases as explanatory
+increases).}
+}}
+
+\item{method}{The method used to calculate the p-value. Must be one of:
+\describe{
+\item{\code{"theory"}}{(default) Uses the T-statistic \eqn{t = b_1 / SE_{b_1}}
+and a T-distribution with \eqn{df = n - 2} to compute the p-value.
+Appropriate when the residuals of the regression model are roughly
+normally distributed and the relationship appears linear.}
+\item{\code{"simulation"}}{Uses a randomization test. The response variable
+is repeatedly shuffled to break any linear relationship, and the
+slope is recomputed each time to build a null distribution centered
+at \eqn{\beta_1 = 0}. Requires raw data via \code{formula} and \code{data}.}
+}}
+
+\item{sim_reps}{The number of shuffles to perform when
+\code{method = "simulation"}. Default is \code{1000}. Increasing to \code{5000} or
+\code{10000} gives a more stable p-value estimate.}
 }
 \value{
-An S3 object of class stat218_test_regression
+An S3 object of class \code{stat218_test_regression} containing all
+computed values. You can use the following methods on the result:
+\describe{
+\item{\code{print(result)}}{Displays a clean summary including the observed
+slope, standard error, test statistic, degrees of freedom, and
+p-value.}
+\item{\code{plot(result)}}{Plots the null distribution (simulated or
+theoretical T-curve) with orange shaded tail(s), p-value annotation,
+and the SD of the Null Distribution labeled on the plot.}
+\item{\code{plot_steps(result)}}{Displays a detailed three-panel
+step-by-step interpretation with proper fraction notation -- great
+for checking your work or studying before an exam.}
+}
 }
 \description{
-Simple Linear Regression Hypothesis Test (Slope)
+Tests whether the slope of a simple linear regression model is
+statistically significantly different from zero -- that is, whether
+the explanatory variable has a real linear effect on the response
+variable in the population.
+
+This function accepts input in \strong{two ways}:
+\itemize{
+\item \strong{Summary Statistics:} You already know the observed slope, its
+standard error, and the sample size (common in textbook problems where
+regression output is summarized for you). Pass \code{slope}, \code{se}, and \code{n}
+directly.
+\item \strong{Raw Data:} You have an actual dataset loaded into R. Pass
+\code{formula} and \code{data} instead, using a two-sided formula of the form
+\code{response ~ explanatory}, and the function will fit the regression
+model and extract all values automatically.
+}
+}
+\details{
+\subsection{The Core Idea}{
+
+In a regression slope test, we are asking: \emph{"Is the slope we estimated
+from our sample large enough to conclude that a real linear relationship
+exists in the population, or could a slope this large have occurred just
+by random chance even if \eqn{\beta_1 = 0}?"}
+
+The null hypothesis is always H\eqn{_0}: \eqn{\beta_1 = 0} -- no linear
+relationship between the explanatory and response variable in the population.
+}
+
+\subsection{Theory Method}{
+
+When \code{method = "theory"}, the T-statistic is:
+\deqn{t = \frac{b_1 - 0}{SE_{b_1}}}
+This follows a T-distribution with \eqn{df = n - 2} under the null
+hypothesis. The standard error \eqn{SE_{b_1}} measures how much the
+slope estimate varies across repeated samples.
+}
+
+\subsection{Simulation Method (Randomization Test)}{
+
+When \code{method = "simulation"}, the response variable is shuffled
+repeatedly to destroy any linear relationship while keeping the
+explanatory variable fixed. Each shuffle produces a simulated slope
+under the null hypothesis. The proportion of simulated slopes as
+extreme as the observed slope is the p-value. Requires raw data
+via \code{formula} and \code{data}.
+}
+
+\subsection{Validity Conditions (Theory Method)}{
+
+The theory-based method is appropriate when:
+\itemize{
+\item The relationship between the two variables is linear (check a
+scatterplot first using \code{explore_2vars()})
+\item The residuals from the fitted model are roughly normally distributed
+\item The sample size is at least 20, or the residuals are clearly normal
+}
+}
+}
+\examples{
+# --- Summary Statistics Path (two-sided, theory) ---
+# Regression output shows slope = 0.12, SE = 0.034, n = 42
+result <- test_regression(
+  slope       = 0.12,
+  se          = 0.034,
+  n           = 42,
+  alternative = "two.sided",
+  method      = "theory"
+)
+print(result)
+\dontrun{
+plot(result)
+plot_steps(result)
+}
+
+# --- Raw Data Path (theory) ---
+# Using the gpa dataset: does study hours predict GPA?
+result2 <- test_regression(
+  formula     = gpa ~ hours,
+  data        = gpa,
+  alternative = "greater",
+  method      = "theory"
+)
+print(result2)
+\dontrun{
+plot(result2)
+plot_steps(result2)
+}
+
+# --- Raw Data Path (simulation) ---
+result3 <- test_regression(
+  formula     = gpa ~ hours,
+  data        = gpa,
+  alternative = "greater",
+  method      = "simulation",
+  sim_reps    = 5000
+)
+print(result3)
+\dontrun{
+plot(result3)
+}
+
 }

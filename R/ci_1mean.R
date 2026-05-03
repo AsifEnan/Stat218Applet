@@ -14,7 +14,7 @@
 #'   and `data` instead, and the function computes all summary statistics
 #'   automatically.
 #'
-#' @param x_bar The observed sample mean — the average value from your sample.
+#' @param x_bar The observed sample mean-the average value from your sample.
 #'   **Only used when NOT providing `formula` and `data`.**
 #' @param n A whole number representing the total sample size.
 #'   **Only used when NOT providing `formula` and `data`.**
@@ -98,35 +98,45 @@
 #' # --- Summary Statistics (2SD method, default) ---
 #' result <- ci_1mean(x_bar = 72.4, sd_val = 8.1, n = 35)
 #' print(result)
+#' \dontrun{
 #' plot(result)
 #' plot_steps(result)
+#'}
 #'
 #' # --- Summary Statistics (theory, T-interval) ---
 #' result2 <- ci_1mean(x_bar = 72.4, sd_val = 8.1, n = 35,
 #'                     sd_type = "sample", conf_level = 0.95,
 #'                     method = "theory")
 #' print(result2)
+#' \dontrun{
 #' plot(result2)
 #' plot_steps(result2)
+#' }
 #'
 #' # --- Summary Statistics (simulation, 90% CI) ---
 #' result3 <- ci_1mean(x_bar = 72.4, sd_val = 8.1, n = 35,
 #'                     conf_level = 0.90, method = "simulation")
 #' print(result3)
+#' \dontrun{
 #' plot(result3)
 #' plot_steps(result3)
+#'}
 #'
 #' # --- Raw Data (2SD method) ---
 #' result4 <- ci_1mean(formula = ~ mpg, data = mtcars, method = "2SD")
 #' print(result4)
+#' \dontrun{
 #' plot(result4)
 #' plot_steps(result4)
+#' }
 #'
 #' # --- Raw Data (theory, T-interval) ---
 #' result5 <- ci_1mean(formula = ~ mpg, data = mtcars, method = "theory")
 #' print(result5)
+#' \dontrun{
 #' plot(result5)
 #' plot_steps(result5)
+#'}
 #'
 #' @export
 ci_1mean <- function(x_bar = NULL, n = NULL, sd_val = NULL,
@@ -137,7 +147,7 @@ ci_1mean <- function(x_bar = NULL, n = NULL, sd_val = NULL,
                      sim_reps = 1000) {
 
   # ============================================================
-  # ROUTING STATION — Phase Two dual-input logic
+  # ROUTING STATION -- Phase Two dual-input logic
   # ============================================================
 
   summary_stat_provided <- !is.null(x_bar) || !is.null(n) || !is.null(sd_val)
@@ -147,7 +157,7 @@ ci_1mean <- function(x_bar = NULL, n = NULL, sd_val = NULL,
   if (summary_stat_provided && formula_provided) {
     cli::cli_abort(c(
       "x" = "You provided both a dataset {.emph (formula/data)} and summary statistics {.emph (x_bar/n/sd_val)}.",
-      "i" = "These are two different ways to use {.fn ci_1mean} — please choose one:",
+      "i" = "These are two different ways to use {.fn ci_1mean} -- please choose one:",
       " " = " ",
       "*" = "If you have {.strong raw data}: use {.arg formula} and {.arg data}, and remove {.arg x_bar}, {.arg n}, and {.arg sd_val}.",
       "*" = "If you only have {.strong summary statistics}: use {.arg x_bar}, {.arg n}, and {.arg sd_val}, and remove {.arg formula} and {.arg data}."
@@ -316,7 +326,7 @@ ci_1mean <- function(x_bar = NULL, n = NULL, sd_val = NULL,
       upper      <- x_bar + me
       calc_type  <- "multiplier"
     } else {
-      # simulation — percentile method, works for any conf_level
+      # simulation -- percentile method, works for any conf_level
       multiplier <- NA
       me         <- NA
       alpha      <- 1 - conf_level
@@ -390,7 +400,7 @@ print.stat218_1mean_ci <- function(x, ...) {
 
   if (x$method == "theory" && x$n < 20) {
     cli::cli_warn(c(
-      "!" = "Validity conditions may not be met — n = {x$n} is less than 20.",
+      "!" = "Validity conditions may not be met -- n = {x$n} is less than 20.",
       "i" = "Verify the data is roughly symmetric before trusting these results.",
       "i" = "Consider using {.code method = \"2SD\"} or {.code method = \"simulation\"}."
     ))
@@ -552,7 +562,7 @@ plot.stat218_1mean_ci <- function(x, ...) {
 }
 
 # ============================================================
-# PLOT_STEPS METHOD — 3-panel patchwork
+# PLOT_STEPS METHOD -- 3-panel patchwork
 # ============================================================
 
 #' @export
@@ -562,7 +572,7 @@ plot_steps.stat218_1mean_ci <- function(x, ...) {
   pct       <- x$conf_level * 100
   sd_symbol <- ifelse(x$sd_type == "population", "&sigma;", "s")
 
-  # Validity warning — top of bottom panel
+  # Validity warning -- top of bottom panel
   warning_text <- ""
   if (x$method == "theory" && x$n < 20) {
     warning_text <- paste0(

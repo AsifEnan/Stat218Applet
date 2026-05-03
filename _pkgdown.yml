@@ -1,0 +1,119 @@
+url: https://asifenan.github.io/Stat218Applet/
+
+template:
+  bootstrap: 5
+  bootswatch: flatly
+
+home:
+  title: "Stat218Applet"
+  description: >
+    Simulation-based and theory-based statistical inference functions
+    for introductory statistics courses, following the ISI textbook.
+
+navbar:
+  structure:
+    left: [intro, reference, articles]
+    right: [github]
+  components:
+    intro:
+      text: "Get Started"
+      href: articles/introduction.html
+    reference:
+      text: "Functions & Data"
+      href: reference/index.html
+    articles:
+      text: "Articles"
+      menu:
+        - text: "Getting Started with Stat218Applet"
+          href: articles/introduction.html
+    github:
+      icon: fab fa-github
+      href: https://github.com/AsifEnan/Stat218Applet
+      aria-label: GitHub
+
+reference:
+  - title: "Hypothesis Tests"
+    desc: >
+      Functions for testing claims about population parameters.
+      Each function accepts either summary statistics or raw data
+      via formula and data, and returns an S3 object with print(),
+      plot(), and plot_steps() methods.
+    contents:
+      - test_1prop
+      - test_1mean
+      - test_2prop
+      - test_2mean
+      - test_paired
+      - test_correlation
+      - test_regression
+
+  - title: "Confidence Intervals"
+    desc: >
+      Functions for constructing confidence intervals. All support
+      three methods -- 2SD (default, 95% only), simulation (any
+      confidence level), and theory (formula-based).
+    contents:
+      - ci_1prop
+      - ci_1mean
+      - ci_2prop
+      - ci_2mean
+      - ci_paired
+
+  - title: "Helper Functions"
+    desc: >
+      Tools for exploring data, reading regression output, and
+      looking up statistical symbols before running formal inference.
+    contents:
+      - explore_2vars
+      - table_regression
+      - show_symbols
+      - plot_steps
+
+  - title: "Datasets"
+    desc: >
+      32 datasets drawn from the Introduction to Statistical
+      Investigations (ISI) textbook by Tintle et al., covering
+      Chapters P, 2, 3, 5, 6, 7, and 10.
+    contents:
+      - organdonor
+      - oldfaithful
+      - oldfaithful2
+      - timeestimate
+      - timepopulation
+      - sleeptimes
+      - haircuts
+      - usedcars
+      - goodandbad
+      - gilbert
+      - dolphin
+      - yawning
+      - smoking
+      - blood
+      - biketimes
+      - sleep
+      - breastfeedintell
+      - closefriends
+      - firstbase
+      - jjvsbicycle
+      - bowlsmms
+      - auction
+      - tempheart
+      - gpa
+      - facebook
+      - draftlottery
+      - exercisemood
+      - footheight
+      - alcoholsmoke
+      - handwidth
+      - examtimesscores
+      - platesize
+
+  - title: "Internal Methods"
+    desc: >
+      S3 plot methods dispatched automatically -- use plot() on
+      any result object.
+    contents:
+      - plot.stat218_1prop_ci
+      - plot.stat218_2mean_ci
+
+

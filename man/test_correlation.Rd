@@ -5,27 +5,175 @@
 \title{Correlation Hypothesis Test}
 \usage{
 test_correlation(
-  x,
-  y,
+  r_obs = NULL,
+  n = NULL,
+  formula = NULL,
+  data = NULL,
   alternative = "two.sided",
   method = "theory",
   sim_reps = 1000
 )
 }
 \arguments{
-\item{x}{Numeric vector for the explanatory variable}
+\item{r_obs}{The observed sample correlation coefficient (a number between
+-1 and 1). For example, if the correlation between height and weight in
+your sample was 0.72, use \code{r_obs = 0.72}.
+\strong{Only used when NOT providing \code{formula} and \code{data}.}}
 
-\item{y}{Numeric vector for the response variable}
+\item{n}{A whole number representing the total number of paired observations
+in your sample. For example, if you measured 40 pairs of (x, y) values,
+use \code{n = 40}.
+\strong{Only used when NOT providing \code{formula} and \code{data}.}}
 
-\item{alternative}{"two.sided", "greater", or "less"}
+\item{formula}{A two-sided formula of the form \code{response ~ explanatory}
+identifying the two numeric variables to correlate. For example,
+\code{formula = heart_rate ~ body_temp} where both columns exist in \code{data}.
+\strong{Only used when NOT providing \code{r_obs} and \code{n}.}}
 
-\item{method}{"theory" or "simulation"}
+\item{data}{A data frame containing the variables named in \code{formula}.
+\strong{Only used when NOT providing \code{r_obs} and \code{n}.}}
 
-\item{sim_reps}{Number of iterations for Simulation (default 1000)}
+\item{alternative}{The direction of the alternative hypothesis
+(H\eqn{_a}). Must be one of:
+\describe{
+\item{\code{"two.sided"}}{H\eqn{_a}: \eqn{\rho \neq 0} (default) -- use when
+testing whether the correlation is \emph{different from} zero in either
+direction.}
+\item{\code{"greater"}}{H\eqn{_a}: \eqn{\rho > 0} -- use when testing whether
+there is a \emph{positive} linear association.}
+\item{\code{"less"}}{H\eqn{_a}: \eqn{\rho < 0} -- use when testing whether
+there is a \emph{negative} linear association.}
+}}
+
+\item{method}{The method used to calculate the p-value. Must be one of:
+\describe{
+\item{\code{"theory"}}{(default) Converts the observed correlation to a
+T-statistic and uses a T-distribution with \eqn{df = n - 2} to
+compute the p-value. Appropriate when both variables are roughly
+normally distributed and the relationship appears linear.}
+\item{\code{"simulation"}}{Uses a randomization test. The response variable
+is repeatedly shuffled to break any existing relationship, and the
+correlation is recomputed each time to build a null distribution
+centered at \eqn{\rho = 0}. Requires raw data via \code{formula} and
+\code{data}.}
+}}
+
+\item{sim_reps}{The number of shuffles to perform when
+\code{method = "simulation"}. Default is \code{1000}. Increasing to \code{5000} or
+\code{10000} gives a more stable p-value estimate.}
 }
 \value{
-An S3 object of class stat218_test_correlation
+An S3 object of class \code{stat218_test_correlation} containing all
+computed values. You can use the following methods on the result:
+\describe{
+\item{\code{print(result)}}{Displays a clean summary including the observed
+correlation, test statistic, degrees of freedom, and p-value.}
+\item{\code{plot(result)}}{Plots the null distribution (simulated or
+theoretical T-curve) with orange shaded tail(s), p-value annotation,
+and the SD of the Null Distribution labeled on the plot.}
+\item{\code{plot_steps(result)}}{Displays a detailed three-panel
+step-by-step interpretation with proper fraction notation -- great
+for checking your work or studying before an exam.}
+}
 }
 \description{
-Correlation Hypothesis Test
+Tests whether the linear association between two quantitative variables is
+statistically significant -- that is, whether the true population correlation
+coefficient (\eqn{\rho}, pronounced "rho") is different from zero.
+
+This function accepts input in \strong{two ways}:
+\itemize{
+\item \strong{Summary Statistics:} You already know the observed correlation
+coefficient and the sample size (common in textbook problems where
+results are summarized for you). Pass \code{r_obs} and \code{n} directly.
+\item \strong{Raw Data:} You have an actual dataset loaded into R. Pass
+\code{formula} and \code{data} instead, using a two-sided formula of the form
+\code{response ~ explanatory}, and the function will compute the correlation
+for you automatically.
+}
+}
+\details{
+\subsection{The Core Idea}{
+
+In a correlation test, we are asking: \emph{"Is the linear association we
+observed between two variables in our sample strong enough to conclude
+that a real relationship exists in the population, or could it have
+happened by random chance even if \eqn{\rho = 0}?"}
+
+The null hypothesis is always H\eqn{_0}: \eqn{\rho = 0} -- no linear
+association between the two variables in the population.
+}
+
+\subsection{Theory Method}{
+
+When \code{method = "theory"}, the observed correlation \eqn{r} is converted
+to a T-statistic using the formula:
+\deqn{t = r \cdot \sqrt{\frac{n - 2}{1 - r^2}}}
+This T-statistic follows a T-distribution with \eqn{df = n - 2} under
+the null hypothesis.
+}
+
+\subsection{Simulation Method (Randomization Test)}{
+
+When \code{method = "simulation"}, the response variable is shuffled
+repeatedly to destroy any real relationship while keeping the
+explanatory variable fixed. Each shuffle produces a simulated
+correlation under the null hypothesis of \eqn{\rho = 0}. The
+proportion of simulated correlations as extreme as the observed one
+is the p-value. Requires raw data via \code{formula} and \code{data}.
+}
+
+\subsection{Validity Conditions (Theory Method)}{
+
+The theory-based method is appropriate when:
+\itemize{
+\item Both variables are roughly normally distributed (or \eqn{n} is large)
+\item The relationship between the two variables appears linear (check a
+scatterplot first using \code{explore_2vars()})
+\item There are no severe outliers
+}
+}
+}
+\examples{
+# --- Summary Statistics Path (two-sided, theory) ---
+# Observed correlation of 0.54 from 40 pairs of observations.
+result <- test_correlation(
+  r_obs       = 0.54,
+  n           = 40,
+  alternative = "two.sided",
+  method      = "theory"
+)
+print(result)
+\dontrun{
+plot(result)
+plot_steps(result)
+}
+
+# --- Raw Data Path (theory) ---
+# Using the tempheart dataset: does heart rate correlate with body temperature?
+result2 <- test_correlation(
+  formula     = heart_rate ~ body_temp,
+  data        = tempheart,
+  alternative = "two.sided",
+  method      = "theory"
+)
+print(result2)
+\dontrun{
+plot(result2)
+plot_steps(result2)
+}
+
+# --- Raw Data Path (simulation) ---
+result3 <- test_correlation(
+  formula     = heart_rate ~ body_temp,
+  data        = tempheart,
+  alternative = "two.sided",
+  method      = "simulation",
+  sim_reps    = 5000
+)
+print(result3)
+\dontrun{
+plot(result3)
+}
+
 }

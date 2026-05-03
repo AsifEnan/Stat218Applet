@@ -54,7 +54,7 @@ Must be one of:
 \describe{
 \item{\code{"2SD"}}{(default) The 2SD Simulation Method. Uses a
 sign-flipping bootstrap centered at the observed mean difference.
-For each repetition, a coin is flipped for every pair — heads
+For each repetition, a coin is flipped for every pair -- heads
 flips the sign of that pair's difference, tails leaves it as is.
 The interval is \eqn{\bar{x}_d \pm 2 \times SD}.
 Can only be used with 95\%
@@ -92,7 +92,7 @@ simulation method, a general simulation method, or a theory-based
 T-interval.
 
 Paired data arises when each subject contributes \strong{two related
-measurements} — for example, a before/after reading, a left/right
+measurements} -- for example, a before/after reading, a left/right
 measurement, or two treatments applied to the same subject. Because
 the two measurements within each pair are linked, we work with the
 \strong{differences} rather than treating the two groups independently.
@@ -107,7 +107,7 @@ and \code{n_d} directly. Note that \code{method = "2SD"} and
 containing the pre-computed differences. Use \code{formula = ~ Differences}
 with your data frame.
 \item \strong{Two Columns (Before/After):} You have a dataset with two separate
-columns — one for each measurement. Use \code{formula = After ~ Before}
+columns -- one for each measurement. Use \code{formula = After ~ Before}
 and the function computes differences as After minus Before for each
 pair automatically.
 }
@@ -134,7 +134,7 @@ variability and gain statistical power.
 
 Under the null hypothesis for a CI, we center the bootstrap at the
 observed mean difference. For each repetition, a coin is flipped for
-every pair — heads flips the sign of that pair's difference (simulating
+every pair -- heads flips the sign of that pair's difference (simulating
 the idea that the two measurements are interchangeable), tails leaves it
 as is. The SD of the resulting distribution estimates the SE, and the
 interval is \eqn{\bar{x}_d \pm 2 \times SD}.
@@ -161,24 +161,32 @@ The theory-based T-interval is most reliable when:
 result <- ci_paired(x_bar_d = 4.2, sd_d = 6.8, n_d = 25,
                     name = "Post - Pre", method = "theory")
 print(result)
+\dontrun{
 plot(result)
 plot_steps(result)
+}
 
 # --- Summary Statistics (theory, 90\% CI) ---
 result2 <- ci_paired(x_bar_d = 4.2, sd_d = 6.8, n_d = 25,
                      name = "Post - Pre", conf_level = 0.90,
                      method = "theory")
 print(result2)
+\dontrun{
 plot(result2)
 plot_steps(result2)
+}
 
 # --- Single Differences Column (2SD method) ---
+\dontrun{
 result3 <- ci_paired(formula = ~ extra,
                      data = sleep[sleep$group == 1, ],
                      name = "Extra Sleep (hours)", method = "2SD")
 print(result3)
+}
+\dontrun{
 plot(result3)
 plot_steps(result3)
+}
 
 # --- Two Columns Before/After (simulation, 90\% CI) ---
 study_data <- data.frame(
@@ -189,14 +197,18 @@ result4 <- ci_paired(formula = After ~ Before, data = study_data,
                      name = "After - Before", conf_level = 0.90,
                      method = "simulation")
 print(result4)
+\dontrun{
 plot(result4)
 plot_steps(result4)
+}
 
 # --- Two Columns Before/After (theory) ---
 result5 <- ci_paired(formula = After ~ Before, data = study_data,
                      name = "After - Before", method = "theory")
 print(result5)
+\dontrun{
 plot(result5)
 plot_steps(result5)
+}
 
 }

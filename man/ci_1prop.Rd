@@ -65,17 +65,6 @@ failures in the sample.}
 \item{sim_reps}{The number of bootstrap samples when \code{method = "2SD"} or
 \code{method = "simulation"}. Default is \code{1000}. Increasing to \code{5000} gives
 a more stable interval.}
-
-\item{plot_type}{The type of plot to display for the bootstrap distribution
-when \code{method = "2SD"} or \code{method = "simulation"}. Must be one of:
-\describe{
-\item{\code{"histogram"}}{(default) A histogram of the simulated bootstrap
-proportions. Consistent with the rest of the package.}
-\item{\code{"dotplot"}}{A dot plot showing each simulated proportion as an
-individual dot stacked by value. Useful for visualizing the discrete
-nature of the bootstrap distribution for proportions. Only available
-for simulation-based methods.}
-}}
 }
 \value{
 An S3 object of class \code{stat218_1prop_ci} containing all computed
@@ -134,26 +123,38 @@ appropriate Z* multiplier. Requires:
 }
 }
 }
+\note{
+To display the bootstrap distribution as a dotplot instead of a
+histogram, use \code{plot(result, plot_type = "dotplot")} after
+running this function. Only available for \code{method = "2SD"} or
+\code{method = "simulation"}.
+}
 \examples{
 # --- Summary Statistics (2SD method, default) ---
 result <- ci_1prop(successes = 42, n = 80)
 print(result)
+\dontrun{
 plot(result)
 plot_steps(result)
+}
 
 # --- Summary Statistics (theory, 95\% CI) ---
 result2 <- ci_1prop(successes = 42, n = 80,
                     conf_level = 0.95, method = "theory")
 print(result2)
+\dontrun{
 plot(result2)
 plot_steps(result2)
+}
 
 # --- Summary Statistics (simulation, 90\% CI) ---
 result3 <- ci_1prop(successes = 42, n = 80,
                     conf_level = 0.90, method = "simulation")
 print(result3)
+\dontrun{
 plot(result3)
 plot_steps(result3)
+}
 
 # --- Raw Data (2SD method) ---
 car_data <- mtcars
@@ -161,14 +162,18 @@ car_data$transmission <- ifelse(mtcars$am == 1, "Manual", "Automatic")
 result4 <- ci_1prop(formula = ~ transmission, data = car_data,
                     success_level = "Manual", method = "2SD")
 print(result4)
+\dontrun{
 plot(result4)
 plot_steps(result4)
+}
 
 # --- Raw Data (theory) ---
 result5 <- ci_1prop(formula = ~ transmission, data = car_data,
                     success_level = "Manual", method = "theory")
 print(result5)
+\dontrun{
 plot(result5)
 plot_steps(result5)
+}
 
 }

@@ -6,7 +6,7 @@
 #' simulation-based sign-flipping approach (when raw data is provided).
 #'
 #' Paired data arises when each subject contributes **two related
-#' measurements** — for example, a before/after reading, a left/right
+#' measurements** -- for example, a before/after reading, a left/right
 #' measurement, or two treatments applied to the same subject. Because the
 #' two measurements within each pair are linked, we work with the
 #' **differences** rather than treating the two groups independently.
@@ -16,7 +16,7 @@
 #' - **Summary Statistics:** You already know the mean difference, standard
 #'   deviation of differences, and number of pairs. Pass `x_bar_d`, `sd_d`,
 #'   and `n_d` directly. Note that `method = "simulation"` is not available
-#'   with summary statistics — simulation requires the individual difference
+#'   with summary statistics -- simulation requires the individual difference
 #'   values.
 #'
 #' - **Single Differences Column:** You have a dataset with one column
@@ -25,7 +25,7 @@
 #'   your data frame.
 #'
 #' - **Two Columns (Before/After):** You have a dataset with two separate
-#'   columns — one for each measurement. Use `formula = After ~ Before`
+#'   columns -- one for each measurement. Use `formula = After ~ Before`
 #'   and the function computes the differences automatically as
 #'   After minus Before for each pair.
 #'
@@ -57,13 +57,13 @@
 #' @param alternative The direction of the alternative hypothesis
 #'   (H\eqn{_a}). Must be one of:
 #'   \describe{
-#'     \item{`"two.sided"`}{H\eqn{_a}: \eqn{\mu_d \neq 0} (default) —
+#'     \item{`"two.sided"`}{H\eqn{_a}: \eqn{\mu_d \neq 0} (default) --
 #'       use when testing if the mean difference is simply *different
 #'       from zero* in either direction.}
-#'     \item{`"greater"`}{H\eqn{_a}: \eqn{\mu_d > 0} —
+#'     \item{`"greater"`}{H\eqn{_a}: \eqn{\mu_d > 0} --
 #'       use when testing if the mean difference is *positive* (After
 #'       tends to be larger than Before).}
-#'     \item{`"less"`}{H\eqn{_a}: \eqn{\mu_d < 0} —
+#'     \item{`"less"`}{H\eqn{_a}: \eqn{\mu_d < 0} --
 #'       use when testing if the mean difference is *negative* (After
 #'       tends to be smaller than Before).}
 #'   }
@@ -75,7 +75,7 @@
 #'       pairs is at least 20, or when the distribution of differences
 #'       is roughly symmetric.}
 #'     \item{`"simulation"`}{Uses a Sign-Flipping simulation. For each
-#'       repetition, a coin is flipped for every pair — heads means the
+#'       repetition, a coin is flipped for every pair -- heads means the
 #'       sign of that pair's difference is flipped (swapping which
 #'       measurement came "first"), tails means it stays as is. This
 #'       simulates the null hypothesis that the two measurements are
@@ -116,7 +116,7 @@
 #'
 #' ## Simulation Method (Sign-Flipping)
 #' Under the null hypothesis, the two measurements for each subject are
-#' completely interchangeable — it does not matter which one we call
+#' completely interchangeable -- it does not matter which one we call
 #' "Before" and which we call "After." To simulate this, we flip a coin
 #' for each pair. Heads means we swap the two values (flipping the sign
 #' of the difference); tails means we leave them as is. We then compute
@@ -143,19 +143,23 @@
 #' )
 #' print(result)
 #' plot(result)
+#' \dontrun{
 #' plot_steps(result)
+#'}
 #'
 #' # --- Single Differences Column (simulation) ---
-#' # Using sleep dataset: extra hours of sleep with drug vs without.
-#' # The 'extra' column is already a difference (drug effect).
+#' # Compute the difference (wide - narrow) and store it as a new column
+#' firstbase$diff <- firstbase$wide - firstbase$narrow
 #' result2 <- test_paired(
-#'   formula = ~ extra, data = sleep[sleep$group == 1, ],
-#'   name = "Extra Sleep (hours)",
-#'   alternative = "two.sided", method = "simulation"
-#' )
-#' print(result2)
+#'  formula     = ~ diff,
+#'  data        = firstbase,
+#'  alternative = "two.sided",
+#'  method      = "simulation"
+#')
 #' plot(result2)
+#' \dontrun{
 #' plot_steps(result2)
+#'}
 #'
 #' # --- Two Columns Before/After (theory) ---
 #' # Using a manually created before/after dataset.
@@ -170,7 +174,9 @@
 #' )
 #' print(result3)
 #' plot(result3)
+#' \dontrun{
 #' plot_steps(result3)
+#' }
 #'
 #' # --- Two Columns Before/After (simulation, sign-flipping) ---
 #' result4 <- test_paired(
@@ -180,7 +186,9 @@
 #' )
 #' print(result4)
 #' plot(result4)
+#' \dontrun{
 #' plot_steps(result4)
+#' }
 #'
 #' @export
 test_paired <- function(x_bar_d = NULL, sd_d = NULL, n_d = NULL,
@@ -191,7 +199,7 @@ test_paired <- function(x_bar_d = NULL, sd_d = NULL, n_d = NULL,
                         sim_reps = 1000) {
 
   # ============================================================
-  # ROUTING STATION — Phase Two dual-input logic
+  # ROUTING STATION -- Phase Two dual-input logic
   # ============================================================
 
   summary_stat_provided <- !is.null(x_bar_d) || !is.null(sd_d) || !is.null(n_d)
@@ -201,7 +209,7 @@ test_paired <- function(x_bar_d = NULL, sd_d = NULL, n_d = NULL,
   if (summary_stat_provided && formula_provided) {
     cli::cli_abort(c(
       "x" = "You provided both a dataset {.emph (formula/data)} and summary statistics {.emph (x_bar_d/sd_d/n_d)}.",
-      "i" = "These are two different ways to use {.fn test_paired} — please choose one:",
+      "i" = "These are two different ways to use {.fn test_paired} -- please choose one:",
       " " = " ",
       "*" = "If you have {.strong raw data}: use {.arg formula} and {.arg data}, and remove the summary stat arguments.",
       "*" = "If you only have {.strong summary statistics}: use {.arg x_bar_d}, {.arg sd_d}, and {.arg n_d}, and remove {.arg formula} and {.arg data}."
@@ -218,7 +226,7 @@ test_paired <- function(x_bar_d = NULL, sd_d = NULL, n_d = NULL,
     ))
   }
 
-  # Summary stats + simulation — not possible
+  # Summary stats + simulation -- not possible
   if (summary_stat_provided && method == "simulation") {
     cli::cli_abort(c(
       "x" = "Simulation is not available when using summary statistics.",
@@ -473,7 +481,7 @@ print.stat218_test_paired <- function(x, ...) {
 
   if (x$method == "theory" && x$n_d < 20) {
     cli::cli_warn(c(
-      "!" = "Validity conditions may not be met — fewer than 20 pairs (n_d = {x$n_d}).",
+      "!" = "Validity conditions may not be met -- fewer than 20 pairs (n_d = {x$n_d}).",
       "i" = "Verify that the distribution of differences is roughly symmetric.",
       "i" = "Consider using {.code method = \"simulation\"} if raw data is available."
     ))
@@ -637,7 +645,7 @@ plot.stat218_test_paired <- function(x, ...) {
 }
 
 # ============================================================
-# PLOT_STEPS METHOD — 3-panel patchwork with latex2exp
+# PLOT_STEPS METHOD -- 3-panel patchwork with latex2exp
 # ============================================================
 
 #' @export
@@ -670,7 +678,7 @@ plot_steps.stat218_test_paired <- function(x, alpha = 0.05, ...) {
     p_conc <- paste0("<i>Conclusion:</i> Since the p-value is greater than our significance level (&alpha; = ", alpha, "), we lack strong evidence against the null. We <b>Fail to Reject the Null Hypothesis (H<sub>0</sub>)</b>.")
   }
 
-  # Validity warning — at TOP of bottom panel
+  # Validity warning -- at TOP of bottom panel
   warning_text <- ""
   if (x$method == "theory" && x$n_d < 20) {
     warning_text <- paste0(
@@ -685,7 +693,7 @@ plot_steps.stat218_test_paired <- function(x, alpha = 0.05, ...) {
     stat_label   <- "Z[sim]"
     method_blurb <- paste0(
       "We use a <b>Sign-Flipping simulation</b>. For each repetition, a coin is flipped ",
-      "for every pair — heads flips the sign of that pair's difference (swapping which ",
+      "for every pair -- heads flips the sign of that pair's difference (swapping which ",
       "measurement came first), tails leaves it as is. This simulates the null hypothesis ",
       "that the two measurements are completely interchangeable.<br>",
       "&bull; SD of Null Distribution = ", round(x$se, 4), "<br><br>",
@@ -765,7 +773,7 @@ plot_steps.stat218_test_paired <- function(x, alpha = 0.05, ...) {
     ggplot2::theme_void() +
     ggplot2::theme(plot.margin = ggplot2::margin(t = 10, r = 20, b = 10, l = 40))
 
-  # ---- PANEL 3: Bottom HTML — warning at top ----
+  # ---- PANEL 3: Bottom HTML -- warning at top ----
   bottom_html <- paste0(
     warning_text,
     "<i>Interpretation of Statistic:</i> The observed mean difference is ",

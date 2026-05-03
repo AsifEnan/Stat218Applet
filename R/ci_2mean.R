@@ -11,7 +11,7 @@
 #'   deviation, and sample size for both groups. Pass `x_bar_1`, `sd_1`,
 #'   `n_1`, `x_bar_2`, `sd_2`, and `n_2` directly. Note that
 #'   `method = "2SD"` and `method = "simulation"` are not available with
-#'   summary statistics — they require the individual data values.
+#'   summary statistics -- they require the individual data values.
 #'
 #' - **Raw Data:** You have an actual dataset loaded into R. Pass `formula`
 #'   and `data` instead, and the function computes all summary statistics
@@ -77,14 +77,10 @@
 #'   }
 #' @param sim_reps The number of bootstrap samples when `method = "2SD"`
 #'   or `method = "simulation"`. Default is `1000`.
-#' @param plot_type The type of plot for the bootstrap distribution when
-#'   `method = "2SD"` or `method = "simulation"`. Must be one of:
-#'   \describe{
-#'     \item{`"distribution"`}{(default) Shows the null bootstrap
-#'       distribution with shaded confidence region.}
-#'     \item{`"boxplot"`}{Side-by-side boxplots of the two groups.
-#'       Only available when raw data was provided.}
-#'   }
+#' @note To display the bootstrap distribution as a dotplot instead of a
+#'   histogram, use \code{plot(result, plot_type = "dotplot")} after
+#'   running this function. Only available for \code{method = "2SD"} or
+#'   \code{method = "simulation"}.
 #'
 #' @return An S3 object of class `stat218_2mean_ci` containing all computed
 #'   values. You can use the following methods on the result:
@@ -134,8 +130,10 @@
 #'   method = "theory"
 #' )
 #' print(result)
+#' \dontrun{
 #' plot(result)
 #' plot_steps(result)
+#'}
 #'
 #' # --- Summary Statistics (theory, 90% CI) ---
 #' result2 <- ci_2mean(
@@ -145,8 +143,10 @@
 #'   conf_level = 0.90, method = "theory"
 #' )
 #' print(result2)
+#' \dontrun{
 #' plot(result2)
 #' plot_steps(result2)
+#'}
 #'
 #' # --- Raw Data (2SD method) ---
 #' car_data <- mtcars
@@ -156,9 +156,11 @@
 #'   method = "2SD"
 #' )
 #' print(result3)
+#' \dontrun{
 #' plot(result3)
 #' plot(result3, plot_type = "boxplot")
 #' plot_steps(result3)
+#'}
 #'
 #' # --- Raw Data (simulation, 90% CI) ---
 #' result4 <- ci_2mean(
@@ -166,8 +168,10 @@
 #'   conf_level = 0.90, method = "simulation"
 #' )
 #' print(result4)
+#' \dontrun{
 #' plot(result4)
 #' plot_steps(result4)
+#'}
 #'
 #' # --- Raw Data (theory T-interval) ---
 #' result5 <- ci_2mean(
@@ -175,9 +179,11 @@
 #'   method = "theory"
 #' )
 #' print(result5)
+#' \dontrun{
 #' plot(result5)
 #' plot(result5, plot_type = "boxplot")
 #' plot_steps(result5)
+#'}
 #'
 #' @export
 ci_2mean <- function(x_bar_1 = NULL, sd_1 = NULL, n_1 = NULL,
@@ -190,7 +196,7 @@ ci_2mean <- function(x_bar_1 = NULL, sd_1 = NULL, n_1 = NULL,
                      sim_reps = 1000) {
 
   # ============================================================
-  # ROUTING STATION — Phase Two dual-input logic
+  # ROUTING STATION -- Phase Two dual-input logic
   # ============================================================
 
   summary_stat_provided <- !is.null(x_bar_1) || !is.null(sd_1) ||
@@ -202,7 +208,7 @@ ci_2mean <- function(x_bar_1 = NULL, sd_1 = NULL, n_1 = NULL,
   if (summary_stat_provided && formula_provided) {
     cli::cli_abort(c(
       "x" = "You provided both a dataset {.emph (formula/data)} and summary statistics.",
-      "i" = "These are two different ways to use {.fn ci_2mean} — please choose one:",
+      "i" = "These are two different ways to use {.fn ci_2mean} -- please choose one:",
       " " = " ",
       "*" = "If you have {.strong raw data}: use {.arg formula} and {.arg data}, and remove the summary stat arguments.",
       "*" = "If you only have {.strong summary statistics}: use {.arg x_bar_1}, {.arg sd_1}, {.arg n_1}, etc., and remove {.arg formula} and {.arg data}."
@@ -219,7 +225,7 @@ ci_2mean <- function(x_bar_1 = NULL, sd_1 = NULL, n_1 = NULL,
     ))
   }
 
-  # Summary stats + simulation/2SD — not possible
+  # Summary stats + simulation/2SD -- not possible
   if (summary_stat_provided && method %in% c("2SD", "simulation")) {
     cli::cli_abort(c(
       "x" = "The {.val {method}} method is not available when using summary statistics.",
@@ -413,7 +419,7 @@ ci_2mean <- function(x_bar_1 = NULL, sd_1 = NULL, n_1 = NULL,
   sim_data <- NULL
 
   if (method %in% c("2SD", "simulation")) {
-    # Parametric bootstrap — draw independently from both groups
+    # Parametric bootstrap -- draw independently from both groups
     sim_data <- replicate(sim_reps, {
       s1 <- mean(rnorm(n_1, mean = x_bar_1, sd = sd_1))
       s2 <- mean(rnorm(n_2, mean = x_bar_2, sd = sd_2))
@@ -511,7 +517,7 @@ print.stat218_2mean_ci <- function(x, ...) {
 
   if (x$method == "theory" && (x$n_1 < 20 || x$n_2 < 20)) {
     cli::cli_warn(c(
-      "!" = "Validity conditions may not be met — at least one group has fewer than 20 observations.",
+      "!" = "Validity conditions may not be met -- at least one group has fewer than 20 observations.",
       "i" = "{x$group_names[1]}: n = {x$n_1}  |  {x$group_names[2]}: n = {x$n_2}",
       "i" = "Verify that the distributions within both groups are roughly symmetric."
     ))
@@ -524,6 +530,13 @@ print.stat218_2mean_ci <- function(x, ...) {
 # PLOT METHOD
 # ============================================================
 
+#' Plot Method for ci_2mean Results
+#'
+#' @param x A \code{stat218_2mean_ci} result object from \code{ci_2mean()}.
+#' @param plot_type The type of plot for the bootstrap distribution.
+#'   Must be \code{"histogram"} (default) or \code{"dotplot"}.
+#'   Only available when \code{method = "2SD"} or \code{method = "simulation"}.
+#' @param ... Additional arguments (currently unused).
 #' @export
 #' @method plot stat218_2mean_ci
 plot.stat218_2mean_ci <- function(x, plot_type = "distribution", ...) {
@@ -729,7 +742,7 @@ plot.stat218_2mean_ci <- function(x, plot_type = "distribution", ...) {
 }
 
 # ============================================================
-# PLOT_STEPS METHOD — 3-panel patchwork
+# PLOT_STEPS METHOD -- 3-panel patchwork
 # ============================================================
 
 #' @export
@@ -739,7 +752,7 @@ plot_steps.stat218_2mean_ci <- function(x, ...) {
   pct       <- x$conf_level * 100
   sd_symbol <- ifelse(x$sd_type == "population", "&sigma;", "s")
 
-  # Validity warning — top of bottom panel
+  # Validity warning -- top of bottom panel
   warning_text <- ""
   if (x$method == "theory" && (x$n_1 < 20 || x$n_2 < 20)) {
     warning_text <- paste0(
@@ -880,7 +893,7 @@ plot_steps.stat218_2mean_ci <- function(x, ...) {
     p_math <- ggplot2::ggplot() + ggplot2::theme_void()
   }
 
-  # ---- PANEL 3: Bottom HTML — warning at top ----
+  # ---- PANEL 3: Bottom HTML -- warning at top ----
   if (x$calc_type == "multiplier") {
     interval_html <- paste0(
       "<b>Confidence Interval</b> = (x&#772;<sub>1</sub> &minus; x&#772;<sub>2</sub>) &plusmn; ME<br>",

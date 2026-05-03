@@ -7,7 +7,7 @@
 #' T-interval.
 #'
 #' Paired data arises when each subject contributes **two related
-#' measurements** — for example, a before/after reading, a left/right
+#' measurements** -- for example, a before/after reading, a left/right
 #' measurement, or two treatments applied to the same subject. Because
 #' the two measurements within each pair are linked, we work with the
 #' **differences** rather than treating the two groups independently.
@@ -24,7 +24,7 @@
 #'   with your data frame.
 #'
 #' - **Two Columns (Before/After):** You have a dataset with two separate
-#'   columns — one for each measurement. Use `formula = After ~ Before`
+#'   columns -- one for each measurement. Use `formula = After ~ Before`
 #'   and the function computes differences as After minus Before for each
 #'   pair automatically.
 #'
@@ -58,7 +58,7 @@
 #'   \describe{
 #'     \item{`"2SD"`}{(default) The 2SD Simulation Method. Uses a
 #'       sign-flipping bootstrap centered at the observed mean difference.
-#'       For each repetition, a coin is flipped for every pair — heads
+#'       For each repetition, a coin is flipped for every pair -- heads
 #'       flips the sign of that pair's difference, tails leaves it as is.
 #'       The interval is \eqn{\bar{x}_d \pm 2 \times SD}.
 #'       Can only be used with 95%
@@ -104,7 +104,7 @@
 #' ## The 2SD Method (Sign-Flipping Bootstrap)
 #' Under the null hypothesis for a CI, we center the bootstrap at the
 #' observed mean difference. For each repetition, a coin is flipped for
-#' every pair — heads flips the sign of that pair's difference (simulating
+#' every pair -- heads flips the sign of that pair's difference (simulating
 #' the idea that the two measurements are interchangeable), tails leaves it
 #' as is. The SD of the resulting distribution estimates the SE, and the
 #' interval is \eqn{\bar{x}_d \pm 2 \times SD}.
@@ -124,24 +124,32 @@
 #' result <- ci_paired(x_bar_d = 4.2, sd_d = 6.8, n_d = 25,
 #'                     name = "Post - Pre", method = "theory")
 #' print(result)
+#' \dontrun{
 #' plot(result)
 #' plot_steps(result)
+#'}
 #'
 #' # --- Summary Statistics (theory, 90% CI) ---
 #' result2 <- ci_paired(x_bar_d = 4.2, sd_d = 6.8, n_d = 25,
 #'                      name = "Post - Pre", conf_level = 0.90,
 #'                      method = "theory")
 #' print(result2)
+#' \dontrun{
 #' plot(result2)
 #' plot_steps(result2)
+#'}
 #'
 #' # --- Single Differences Column (2SD method) ---
+#' \dontrun{
 #' result3 <- ci_paired(formula = ~ extra,
 #'                      data = sleep[sleep$group == 1, ],
 #'                      name = "Extra Sleep (hours)", method = "2SD")
 #' print(result3)
+#' }
+#' \dontrun{
 #' plot(result3)
 #' plot_steps(result3)
+#'}
 #'
 #' # --- Two Columns Before/After (simulation, 90% CI) ---
 #' study_data <- data.frame(
@@ -152,15 +160,19 @@
 #'                      name = "After - Before", conf_level = 0.90,
 #'                      method = "simulation")
 #' print(result4)
+#' \dontrun{
 #' plot(result4)
 #' plot_steps(result4)
+#'}
 #'
 #' # --- Two Columns Before/After (theory) ---
 #' result5 <- ci_paired(formula = After ~ Before, data = study_data,
 #'                      name = "After - Before", method = "theory")
 #' print(result5)
+#' \dontrun{
 #' plot(result5)
 #' plot_steps(result5)
+#'}
 #'
 #' @export
 ci_paired <- function(x_bar_d = NULL, sd_d = NULL, n_d = NULL,
@@ -171,7 +183,7 @@ ci_paired <- function(x_bar_d = NULL, sd_d = NULL, n_d = NULL,
                       sim_reps = 1000) {
 
   # ============================================================
-  # ROUTING STATION — Phase Two dual-input logic
+  # ROUTING STATION -- Phase Two dual-input logic
   # ============================================================
 
   summary_stat_provided <- !is.null(x_bar_d) || !is.null(sd_d) ||
@@ -182,7 +194,7 @@ ci_paired <- function(x_bar_d = NULL, sd_d = NULL, n_d = NULL,
   if (summary_stat_provided && formula_provided) {
     cli::cli_abort(c(
       "x" = "You provided both a dataset {.emph (formula/data)} and summary statistics {.emph (x_bar_d/sd_d/n_d)}.",
-      "i" = "These are two different ways to use {.fn ci_paired} — please choose one:",
+      "i" = "These are two different ways to use {.fn ci_paired} -- please choose one:",
       " " = " ",
       "*" = "If you have {.strong raw data}: use {.arg formula} and {.arg data}, and remove the summary stat arguments.",
       "*" = "If you only have {.strong summary statistics}: use {.arg x_bar_d}, {.arg sd_d}, and {.arg n_d}, and remove {.arg formula} and {.arg data}."
@@ -199,7 +211,7 @@ ci_paired <- function(x_bar_d = NULL, sd_d = NULL, n_d = NULL,
     ))
   }
 
-  # Summary stats + simulation/2SD — not possible
+  # Summary stats + simulation/2SD -- not possible
   if (summary_stat_provided && method %in% c("2SD", "simulation")) {
     cli::cli_abort(c(
       "x" = "The {.val {method}} method is not available when using summary statistics.",
@@ -422,7 +434,7 @@ ci_paired <- function(x_bar_d = NULL, sd_d = NULL, n_d = NULL,
     }
 
   } else {
-    # Theory — T-interval
+    # Theory -- T-interval
     se         <- sd_d / sqrt(n_d)
     df         <- n_d - 1
     multiplier <- abs(qt((1 - conf_level) / 2, df = df))
@@ -478,7 +490,7 @@ print.stat218_ci_paired <- function(x, ...) {
 
   if (x$method == "theory" && x$n_d < 20) {
     cli::cli_warn(c(
-      "!" = "Validity conditions may not be met — fewer than 20 pairs (n_d = {x$n_d}).",
+      "!" = "Validity conditions may not be met -- fewer than 20 pairs (n_d = {x$n_d}).",
       "i" = "Verify that the distribution of differences is roughly symmetric.",
       "i" = "Consider using {.code method = \"2SD\"} or {.code method = \"simulation\"} if raw data is available."
     ))
@@ -638,7 +650,7 @@ plot.stat218_ci_paired <- function(x, ...) {
 }
 
 # ============================================================
-# PLOT_STEPS METHOD — 3-panel patchwork
+# PLOT_STEPS METHOD -- 3-panel patchwork
 # ============================================================
 
 #' @export
@@ -647,7 +659,7 @@ plot_steps.stat218_ci_paired <- function(x, ...) {
 
   pct <- x$conf_level * 100
 
-  # Validity warning — top of bottom panel
+  # Validity warning -- top of bottom panel
   warning_text <- ""
   if (x$method == "theory" && x$n_d < 20) {
     warning_text <- paste0(
@@ -661,7 +673,7 @@ plot_steps.stat218_ci_paired <- function(x, ...) {
   if (x$method == "2SD") {
     method_blurb <- paste0(
       "We use the <b>2SD Sign-Flipping Bootstrap</b>. For each repetition, ",
-      "a coin is flipped for every pair — heads flips the sign of that ",
+      "a coin is flipped for every pair -- heads flips the sign of that ",
       "pair's difference, tails leaves it as is. The SD of the resulting ",
       "distribution estimates the standard error:<br>",
       "&bull; SD of Sampling Distribution = ", round(x$se, 4), "<br>",
@@ -761,7 +773,7 @@ plot_steps.stat218_ci_paired <- function(x, ...) {
     p_math <- ggplot2::ggplot() + ggplot2::theme_void()
   }
 
-  # ---- PANEL 3: Bottom HTML — warning at top ----
+  # ---- PANEL 3: Bottom HTML -- warning at top ----
   if (x$calc_type == "multiplier") {
     interval_html <- paste0(
       "<b>Confidence Interval</b> = x&#772;<sub>d</sub> &plusmn; ME<br>",

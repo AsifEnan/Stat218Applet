@@ -75,10 +75,10 @@ that contains the variables named in \code{formula}.
 (H\eqn{_a}). Must be one of:
 \describe{
 \item{\code{"two.sided"}}{H\eqn{_a}: \eqn{\mu_1 - \mu_2 \neq 0} (default)
-— use when testing if the two means are simply \emph{different}.}
-\item{\code{"greater"}}{H\eqn{_a}: \eqn{\mu_1 - \mu_2 > 0} —
+-- use when testing if the two means are simply \emph{different}.}
+\item{\code{"greater"}}{H\eqn{_a}: \eqn{\mu_1 - \mu_2 > 0} --
 use when testing if Group 1's mean is \emph{greater than} Group 2's.}
-\item{\code{"less"}}{H\eqn{_a}: \eqn{\mu_1 - \mu_2 < 0} —
+\item{\code{"less"}}{H\eqn{_a}: \eqn{\mu_1 - \mu_2 < 0} --
 use when testing if Group 1's mean is \emph{less than} Group 2's.}
 }}
 
@@ -126,7 +126,7 @@ This function accepts input in \strong{two ways}:
 deviation, and sample size for both groups (common in textbook homework
 problems). Pass \code{x_bar_1}, \code{sd_1}, \code{n_1}, \code{x_bar_2}, \code{sd_2}, and \code{n_2}
 directly. Note that \code{method = "simulation"} is not available with summary
-statistics — simulation requires access to the individual data values.
+statistics -- simulation requires access to the individual data values.
 \item \strong{Raw Data:} You have an actual dataset loaded into R (common in
 activities and projects). Pass \code{formula} and \code{data} instead, and the
 function computes all summary statistics for you. Both
@@ -149,7 +149,7 @@ between the two population means.
 \subsection{Simulation Method (Permutation Test)}{
 
 We simulate the null hypothesis by treating all observed values as
-interchangeable between groups — just like the beetle study in the
+interchangeable between groups -- just like the beetle study in the
 textbook. All values are pooled, shuffled, and re-dealt into two groups
 of the original sizes. The difference in group means is recorded for each
 shuffle. The SD of that simulated null distribution goes in the denominator
@@ -190,7 +190,9 @@ result <- test_2mean(
 )
 print(result)
 plot(result)
+\dontrun{
 plot_steps(result)
+}
 
 # --- Summary Statistics Path (one-sided, theory Z-test) ---
 result2 <- test_2mean(
@@ -202,7 +204,9 @@ result2 <- test_2mean(
 )
 print(result2)
 plot(result2)
+\dontrun{
 plot_steps(result2)
+}
 
 # --- Raw Data Path (two-sided, simulation) ---
 # Using mtcars: does average MPG differ between automatic and manual?
@@ -215,7 +219,9 @@ result3 <- test_2mean(
 print(result3)
 plot(result3)
 plot(result3, plot_type = "boxplot")
+\dontrun{
 plot_steps(result3)
+}
 
 # --- Raw Data Path (two-sided, theory T-test) ---
 result4 <- test_2mean(
@@ -225,6 +231,8 @@ result4 <- test_2mean(
 print(result4)
 plot(result4)
 plot(result4, plot_type = "boxplot")
+\dontrun{
 plot_steps(result4)
+}
 
 }

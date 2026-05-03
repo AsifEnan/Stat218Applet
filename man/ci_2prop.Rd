@@ -129,7 +129,7 @@ are resampled with replacement separately. The difference in simulated
 proportions is recorded for each repetition. The SD of those differences
 estimates the SE, and the interval is point estimate \eqn{\pm 2 \times SD}.
 Note that unlike \code{test_2prop} which uses a permutation approach, the CI
-bootstrap resamples each group independently — this is correct for
+bootstrap resamples each group independently -- this is correct for
 confidence intervals where we are not assuming the null hypothesis.
 }
 
@@ -163,8 +163,10 @@ result <- ci_2prop(
   method = "theory"
 )
 print(result)
+\dontrun{
 plot(result)
 plot_steps(result)
+}
 
 # --- Summary Statistics (theory, 90\% CI) ---
 result2 <- ci_2prop(
@@ -174,8 +176,10 @@ result2 <- ci_2prop(
   conf_level = 0.90, method = "theory"
 )
 print(result2)
+\dontrun{
 plot(result2)
 plot_steps(result2)
+}
 
 # --- Raw Data (2SD method) ---
 car_data <- mtcars
@@ -186,8 +190,10 @@ result3 <- ci_2prop(
   success_level = "Manual", method = "2SD"
 )
 print(result3)
+\dontrun{
 plot(result3)
 plot_steps(result3)
+}
 
 # --- Raw Data (simulation, 90\% CI) ---
 result4 <- ci_2prop(
@@ -196,8 +202,10 @@ result4 <- ci_2prop(
   method = "simulation"
 )
 print(result4)
+\dontrun{
 plot(result4)
 plot_steps(result4)
+}
 
 # --- Raw Data (theory) ---
 result5 <- ci_2prop(
@@ -205,7 +213,9 @@ result5 <- ci_2prop(
   success_level = "Manual", method = "theory"
 )
 print(result5)
+\dontrun{
 plot(result5)
 plot_steps(result5)
+}
 
 }

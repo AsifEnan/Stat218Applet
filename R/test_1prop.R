@@ -39,11 +39,11 @@
 #' @param alternative The direction of the alternative hypothesis
 #'   (H\eqn{_a}). Must be one of:
 #'   \describe{
-#'     \item{`"two.sided"`}{H\eqn{_a}: \eqn{\pi \neq} `null_pi` (default) —
+#'     \item{`"two.sided"`}{H\eqn{_a}: \eqn{\pi \neq} `null_pi` (default) --
 #'       use when testing if the proportion is *different from* the null.}
-#'     \item{`"greater"`}{H\eqn{_a}: \eqn{\pi >} `null_pi` —
+#'     \item{`"greater"`}{H\eqn{_a}: \eqn{\pi >} `null_pi` --
 #'       use when testing if the proportion is *greater than* the null.}
-#'     \item{`"less"`}{H\eqn{_a}: \eqn{\pi <} `null_pi` —
+#'     \item{`"less"`}{H\eqn{_a}: \eqn{\pi <} `null_pi` --
 #'       use when testing if the proportion is *less than* the null.}
 #'   }
 #' @param method The method used to calculate the p-value. Must be one of:
@@ -97,7 +97,7 @@
 #' \deqn{Z = \frac{\hat{p} - \pi_0}{SD_{null}}, \quad \text{where }
 #' SD_{null} = \sqrt{\frac{\pi_0(1-\pi_0)}{n}}}
 #' The SD of the null distribution is computed from the formula rather than
-#' simulated — but it represents the exact same concept.
+#' simulated -- but it represents the exact same concept.
 #'
 #' ## Validity Conditions for Theory Method
 #' The theory-based Z-test is only reliable when:
@@ -114,7 +114,9 @@
 #'                      alternative = "two.sided", method = "theory")
 #' print(result)
 #' plot(result)
+#' \dontrun{
 #' plot_steps(result)
+#' }
 #'
 #' # --- Raw Data Path ---
 #' # Using mtcars: is the proportion of manual transmission cars different from 50%?
@@ -125,7 +127,9 @@
 #'                       alternative = "two.sided", method = "simulation")
 #' print(result2)
 #' plot(result2)
+#' \dontrun{
 #' plot_steps(result2)
+#'}
 #'
 #' @export
 test_1prop <- function(successes = NULL, n = NULL,
@@ -137,17 +141,17 @@ test_1prop <- function(successes = NULL, n = NULL,
                        sim_reps = 1000) {
 
   # ============================================================
-  # ROUTING STATION — Phase Two dual-input logic
+  # ROUTING STATION -- Phase Two dual-input logic
   # ============================================================
 
   summary_stat_provided <- !is.null(successes) || !is.null(n)
   formula_provided      <- !is.null(formula) || !is.null(data)
 
-  # Case 1: Both paths provided — conflict error
+  # Case 1: Both paths provided -- conflict error
   if (summary_stat_provided && formula_provided) {
     cli::cli_abort(c(
       "x" = "You provided both a dataset {.emph (formula/data)} and summary statistics {.emph (successes/n)}.",
-      "i" = "These are two different ways to use {.fn test_1prop} — please choose one:",
+      "i" = "These are two different ways to use {.fn test_1prop} -- please choose one:",
       " " = " ",
       "*" = "If you have {.strong raw data}: use {.arg formula} and {.arg data}, and remove {.arg successes} and {.arg n}.",
       "*" = "If you only have {.strong summary statistics}: use {.arg successes} and {.arg n}, and remove {.arg formula} and {.arg data}."
@@ -164,7 +168,7 @@ test_1prop <- function(successes = NULL, n = NULL,
     ))
   }
 
-  # Case 2: Raw data path — extract successes and n
+  # Case 2: Raw data path -- extract successes and n
   if (formula_provided) {
 
     if (is.null(data)) {
@@ -537,7 +541,7 @@ plot.stat218_1prop <- function(x, plot_type = "histogram", ...) {
 }
 
 # ============================================================
-# PLOT_STEPS METHOD — 3-panel patchwork with plotmath fractions
+# PLOT_STEPS METHOD -- 3-panel patchwork with plotmath fractions
 # ============================================================
 
 #' @export
@@ -573,7 +577,7 @@ plot_steps.stat218_1prop <- function(x, alpha = 0.05, ...) {
   }
 
   # ---- Build plotmath expressions for the math panel ----
-  # Using R's native plotmath — no latex2exp, no \text{}, no \mathbf{}
+  # Using R's native plotmath -- no latex2exp, no \text{}, no \mathbf{}
   # plotmath reference: plain() for plain text, bold() for bold, frac() for fractions
   #
   # Formula line:  Z = (p-hat - pi_0) / "SD of Null Distribution"

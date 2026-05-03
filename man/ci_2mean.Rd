@@ -93,15 +93,6 @@ and raw data.}
 
 \item{sim_reps}{The number of bootstrap samples when \code{method = "2SD"}
 or \code{method = "simulation"}. Default is \code{1000}.}
-
-\item{plot_type}{The type of plot for the bootstrap distribution when
-\code{method = "2SD"} or \code{method = "simulation"}. Must be one of:
-\describe{
-\item{\code{"distribution"}}{(default) Shows the null bootstrap
-distribution with shaded confidence region.}
-\item{\code{"boxplot"}}{Side-by-side boxplots of the two groups.
-Only available when raw data was provided.}
-}}
 }
 \value{
 An S3 object of class \code{stat218_2mean_ci} containing all computed
@@ -128,7 +119,7 @@ This function accepts input in \strong{two ways}:
 deviation, and sample size for both groups. Pass \code{x_bar_1}, \code{sd_1},
 \code{n_1}, \code{x_bar_2}, \code{sd_2}, and \code{n_2} directly. Note that
 \code{method = "2SD"} and \code{method = "simulation"} are not available with
-summary statistics — they require the individual data values.
+summary statistics -- they require the individual data values.
 \item \strong{Raw Data:} You have an actual dataset loaded into R. Pass \code{formula}
 and \code{data} instead, and the function computes all summary statistics
 automatically. All three methods are available with raw data.
@@ -170,6 +161,12 @@ The theory-based interval is most reliable when:
 }
 }
 }
+\note{
+To display the bootstrap distribution as a dotplot instead of a
+histogram, use \code{plot(result, plot_type = "dotplot")} after
+running this function. Only available for \code{method = "2SD"} or
+\code{method = "simulation"}.
+}
 \examples{
 # --- Summary Statistics (theory T-interval, default) ---
 result <- ci_2mean(
@@ -179,8 +176,10 @@ result <- ci_2mean(
   method = "theory"
 )
 print(result)
+\dontrun{
 plot(result)
 plot_steps(result)
+}
 
 # --- Summary Statistics (theory, 90\% CI) ---
 result2 <- ci_2mean(
@@ -190,8 +189,10 @@ result2 <- ci_2mean(
   conf_level = 0.90, method = "theory"
 )
 print(result2)
+\dontrun{
 plot(result2)
 plot_steps(result2)
+}
 
 # --- Raw Data (2SD method) ---
 car_data <- mtcars
@@ -201,9 +202,11 @@ result3 <- ci_2mean(
   method = "2SD"
 )
 print(result3)
+\dontrun{
 plot(result3)
 plot(result3, plot_type = "boxplot")
 plot_steps(result3)
+}
 
 # --- Raw Data (simulation, 90\% CI) ---
 result4 <- ci_2mean(
@@ -211,8 +214,10 @@ result4 <- ci_2mean(
   conf_level = 0.90, method = "simulation"
 )
 print(result4)
+\dontrun{
 plot(result4)
 plot_steps(result4)
+}
 
 # --- Raw Data (theory T-interval) ---
 result5 <- ci_2mean(
@@ -220,8 +225,10 @@ result5 <- ci_2mean(
   method = "theory"
 )
 print(result5)
+\dontrun{
 plot(result5)
 plot(result5, plot_type = "boxplot")
 plot_steps(result5)
+}
 
 }

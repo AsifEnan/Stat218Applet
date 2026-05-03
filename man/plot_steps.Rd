@@ -10,12 +10,14 @@ plot_steps(x, ...)
 \item{x}{A result object of any \code{stat218_*} class.}
 
 \item{...}{Additional arguments passed to the specific method.}
-
-\item{alpha}{The significance level used for the conclusion. Default is 0.05.}
 }
 \description{
 Displays a step-by-step panel walking through the math, standardized
 statistic, p-value, and written conclusion for a completed statistical
 analysis. Call this on any result object produced by the Stat218Applet
 functions (e.g., \code{test_1prop}, \code{test_1mean}, etc.).
+}
+\note{
+The significance level \code{alpha} is passed via \code{...} and
+handled by each individual method.
 }
