@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 # Stat218Applet
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/AsifEnan/Stat218Applet/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/AsifEnan/Stat218Applet/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check.yaml](https://github.com/AsifEnan/Stat218Applet/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/AsifEnan/Stat218Applet/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 **Stat218Applet** is an R package for introductory statistics courses. It provides simulation-based and theory-based inference functions that follow the *Introduction to Statistical Investigations* (ISI) textbook by Tintle et al. The package is designed to give students hands-on experience with R and RStudio while working through the same concepts covered in class.

@@ -5,7 +5,7 @@
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/AsifEnan/Stat218Applet/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/AsifEnan/Stat218Applet/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check.yaml](https://github.com/AsifEnan/Stat218Applet/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/AsifEnan/Stat218Applet/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 **Stat218Applet** is an R package for introductory statistics courses.
