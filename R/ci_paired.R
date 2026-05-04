@@ -593,6 +593,7 @@ plot.stat218_ci_paired <- function(x, ...) {
       ggplot2::theme(legend.position = "none")
 
   } else {
+    val <- dens <- sim <-  NA
 
     x_vals    <- seq(x$x_bar_d - 4 * x$se, x$x_bar_d + 4 * x$se,
                      length.out = 1000)

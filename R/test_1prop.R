@@ -472,6 +472,7 @@ plot.stat218_1prop <- function(x, plot_type = "histogram", ...) {
 
     # ---- Theory branch ----
   } else {
+    val <- dens <- sim <-  NA
 
     x_vals    <- seq(x$null_pi - 4 * x$se, x$null_pi + 4 * x$se, length.out = 1000)
     y_vals    <- dnorm(x_vals, mean = x$null_pi, sd = x$se)

@@ -541,6 +541,7 @@ plot.stat218_1prop_ci <- function(x, plot_type = "histogram", ...) {
       ggplot2::theme(legend.position = "none")
 
   } else {
+    val <- dens <- sim <-  NA
 
     # Theory curve -- unchanged
     x_vals    <- seq(x$p_hat - 4 * x$se, x$p_hat + 4 * x$se,

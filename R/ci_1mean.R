@@ -470,6 +470,8 @@ plot.stat218_1mean_ci <- function(x, ...) {
 
   # ---- Distribution Plot (top) ----
   if (x$method %in% c("2SD", "simulation")) {
+    # avoid warning about bindings
+    in_ci <- NA
 
     plot_data       <- data.frame(sim = x$sim_data)
     plot_data$in_ci <- plot_data$sim >= x$lower & plot_data$sim <= x$upper
@@ -508,6 +510,7 @@ plot.stat218_1mean_ci <- function(x, ...) {
       ggplot2::theme(legend.position = "none")
 
   } else {
+    val <- dens <- sim <-  NA
 
     x_vals <- seq(x$x_bar - 4 * x$se, x$x_bar + 4 * x$se,
                   length.out = 1000)

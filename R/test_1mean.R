@@ -514,6 +514,7 @@ plot.stat218_1mean <- function(x, ...) {
 
     # ---- Theory branch ----
   } else {
+    val <- dens <- sim <-  NA
 
     x_vals <- seq(x$null_mu - 4 * x$se, x$null_mu + 4 * x$se, length.out = 1000)
 
