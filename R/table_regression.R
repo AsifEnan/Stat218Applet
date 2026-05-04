@@ -81,6 +81,8 @@
 #' regression table are mathematically equivalent: \eqn{F = t^2} and both
 #' produce the same p-value.
 #'
+#' @importFrom stats anova
+#'
 #' @examples
 #' # --- Regression table, mtcars ---
 #' # Does car weight predict fuel efficiency?
