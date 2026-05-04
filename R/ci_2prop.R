@@ -658,6 +658,7 @@ plot.stat218_2prop_ci <- function(x, ...) {
       ggplot2::theme(legend.position = "none")
 
   } else {
+    val <- dens <- sim <-  NA
 
     x_vals    <- seq(x$obs_diff - 4 * x$se, x$obs_diff + 4 * x$se,
                      length.out = 1000)

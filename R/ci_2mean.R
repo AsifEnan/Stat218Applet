@@ -674,6 +674,7 @@ plot.stat218_2mean_ci <- function(x, plot_type = "distribution", ...) {
       ggplot2::theme(legend.position = "none")
 
   } else {
+    val <- dens <- sim <-  NA
 
     x_vals <- seq(x$obs_diff - 4 * x$se, x$obs_diff + 4 * x$se,
                   length.out = 1000)

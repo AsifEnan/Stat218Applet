@@ -647,6 +647,7 @@ plot.stat218_2mean <- function(x, plot_type = "distribution", ...) {
 
     # ---- Theory branch ----
   } else {
+    val <- dens <- sim <-  NA
 
     x_vals <- seq(-4 * x$se, 4 * x$se, length.out = 1000)
 
