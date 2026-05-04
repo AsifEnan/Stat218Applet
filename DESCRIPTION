@@ -32,6 +32,6 @@ Suggests:
 URL: https://github.com/AsifEnan/Stat218Applet
 BugReports: https://github.com/AsifEnan/Stat218Applet/issues
 Depends: 
-    R (>= 3.5)
+    R (>= 4.1)
 LazyData: true
 VignetteBuilder: knitr
