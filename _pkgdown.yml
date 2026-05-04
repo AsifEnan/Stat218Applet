@@ -26,6 +26,8 @@ navbar:
       menu:
         - text: "Getting Started with Stat218Applet"
           href: articles/introduction.html
+        - text: "Live Demo"
+          href: articles/demo.html
     github:
       icon: fab fa-github
       href: https://github.com/AsifEnan/Stat218Applet
